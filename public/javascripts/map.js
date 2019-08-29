@@ -11,8 +11,8 @@ socket.on('disconnect', () => {
 function showDialog(){
     BootstrapDialog.show({
         size: BootstrapDialog.SIZE_SMALL,
-        title: 'Buscador de alumnos',
-        message: $('<textarea id="txtMatricula" class="form-control" placeholder="Captura tu matricula..."></textarea>'),
+        title: 'Inicio de Sesión',
+        message: $('<input id="txtMatricula" type="number" class="form-control" placeholder="Digite su matrícula para iniciar sesión"></input>'),
         buttons: [{
             label: 'Consultar',
             cssClass: 'btn-primary',

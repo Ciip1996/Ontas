@@ -35,10 +35,10 @@ socket.on("usuarioLogeado", (data)=> {
     
         if(sessionStorage.getItem("matricula") != data.matricula){
 
-            toastr.success('Entro el usuario '+data.nombre, 'Usuarios');
+            toastr.success('Entró el usuario ' + data.nombre, 'Usuarios');
         }
     }else {
-        toastr.success('Entro el usuario '+data.nombre, 'Usuarios');
+        toastr.success('Entró el usuario '+data.nombre, 'Usuarios');
     }
     
 });
