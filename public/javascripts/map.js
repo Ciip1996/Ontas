@@ -183,18 +183,19 @@ function createMarker(item, icon) {
 
     currentMarkers.push(marker);
     if(icon != null){
-        var contentString = '<div id="content">' +
-            '<div id="siteNotice">' +
-            '</div>' +
-            '<h1 id="firstHeading" class="firstHeading">' + item.name + '</h1>' +
-            '<div id="bodyContent">' +
-            '<img src="' + item.photos[0] + '"/>' +
-            '</div>' +
+        var contentString = '<div id="content" class="card" style="width: 18rem;">' +
+        '<img src="' + item.photos[0] + '" class="card-img-top" alt="..." style="width: 30px;"> ' +
+        '<div class="card-body">'+
+                '<h5 id="firstHeading"  class="card-title">' + item.name +'</h5>'+
+                '<p id="firstHeading"  class="card-text"> Lat:' + item.location.coordinates[1] +'</p>'+
+                '<p id="firstHeading"  class="card-text"> Lon:' + item.location.coordinates[0] +'</p>'+
+            '</div>'+
             '</div>';
+
     }
     else{
         var contentString = '<div id="content" class="card" style="width: 18rem;">' +
-        '<img src="..." class="card-img-top" alt="..."> ' +
+        '<img src="images/lupa.png" class="card-img-top" alt="..." style="width: 20px;"> ' +
         '<div class="card-body">'+
                 '<h5 id="title"  class="card-title">' + item.name +'</h5>'+
                 '<p id="firstHeading" class="card-text">' + item.description+ '</p>'+
