@@ -194,7 +194,7 @@ function createMarker(item, icon) {
     }
     else{
         var contentString = '<div id="content" class="card" style="width: 18rem;">' +
-        '<img src="..." class="card-img-top" alt="..."> ' +
+        '<img src="images/lupa.png" class="card-img-top" alt="..." style="width: 20px;"> ' +
         '<div class="card-body">'+
                 '<h5 id="title"  class="card-title">' + item.name +'</h5>'+
                 '<p id="firstHeading" class="card-text">' + item.description+ '</p>'+
