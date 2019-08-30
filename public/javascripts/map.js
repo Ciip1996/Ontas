@@ -58,7 +58,7 @@ function initMap() {
                        "location":event.latLng
                    };
                    createMarker(item, null);
-                   socket.emit("",usuario, marker);
+                   //socket.emit("",usuario, marker);// send the data to mongo db
                    dialog.close();
                 }
             }]
@@ -193,14 +193,14 @@ function createMarker(item, icon) {
             '</div>';
     }
     else{
-        var contentString = '<div id="content">' +
-        '<div id="siteNotice">' +
-        '</div>' +
-        '<h3 id="title" class="title">' + item.name+ '</h1>' +
-        '<h1 id="firstHeading" class="firstHeading">' + item.description+ '</h1>' +
-        '<div id="bodyContent">' +
-        '</div>' +
-        '</div>';
+        var contentString = '<div id="content" class="card" style="width: 18rem;">' +
+        '<img src="..." class="card-img-top" alt="..."> ' +
+        '<div class="card-body">'+
+                '<h5 id="title"  class="card-title">' + item.name +'</h5>'+
+                '<p id="firstHeading" class="card-text">' + item.description+ '</p>'+
+            '</div>'+
+            '</div>';
+
     }
 
     var infowindow = new google.maps.InfoWindow({
