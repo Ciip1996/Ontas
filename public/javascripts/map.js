@@ -221,22 +221,26 @@ function createMarker(item, icon) {
 const showMarker = (content, marker, icon) => {
   if (icon != null) {
     var contentString =
-      '<div id="content">' +
-      '<div id="siteNotice">' +
-      "</div>" +
-      '<h1 id="firstHeading" class="firstHeading">' +
-      content.name +
-      "</h1>" +
-      '<div id="bodyContent">' +
+      '<div id="content" class="card" style="width: 18rem;">' +
       '<img src="' +
       content.photos[0] +
-      '"/>' +
+      '" class="card-img-top" alt="..." style="width: 30px;"> ' +
+      '<div class="card-body">' +
+      '<h5 id="firstHeading"  class="card-title">' +
+      content.name +
+      "</h5>" +
+      '<p id="firstHeading"  class="card-text"> Lat:' +
+      content.location.coordinates[1] +
+      "</p>" +
+      '<p id="firstHeading"  class="card-text"> Lon:' +
+      content.location.coordinates[0] +
+      "</p>" +
       "</div>" +
       "</div>";
   } else {
     var contentString =
       '<div id="content" class="card" style="width: 18rem;">' +
-      '<img src="..." class="card-img-top" alt="..."> ' +
+      '<img src="images/lupa.png" class="card-img-top" alt="..." style="width: 20px;"> ' +
       '<div class="card-body">' +
       '<h5 id="title"  class="card-title">' +
       content.name +
