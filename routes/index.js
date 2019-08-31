@@ -1,84 +1,86 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
 
 /* GET home page. */
-router.get('/', function(req, res, next) {
-  res.render('index');
+router.get("/", function(req, res, next) {
+  res.render("index");
 });
 
 var mongoCliente = require("mongodb").MongoClient;
-var url  = "mongodb://localhost:27017/alumnosSalle";
+var url = "mongodb://localhost:27017/alumnos";
 
-router.post("/getpoints", (req, res)=> {
-    debugger;
-    //debug("/getpoints called: ", JSON.stringify(req.body.query));
+router.post("/getpoints", (req, res) => {
+  debugger;
+  // console.log("parametros");
+  // console.log(req.body);
 
-    console.log("parametros");
-    //console.log(JSON.stringify(req.body.query));
+  //https://docs.mongodb.com/manual/reference/operator/query/near/
+  let query = {
+    location: {
+      $near: {
+        $geometry: {
+          type: "Point",
+          coordinates: [parseFloat(req.body.long), parseFloat(req.body.lat)]
+        },
+        $maxDistance: parseInt(req.body.distance)
+      }
+    }
+  };
+
+  if (req.body.type && req.body.type != "all") type = req.body.type;
+
+  mongoCliente.connect(url, function(err, db) {
+    if (err) throw err;
+
+    db.collection("alumnos")
+      .find(query)
+      .toArray(function(err, result) {
+        if (err) throw err;
+        console.log(result);
+
+        res.json(result);
+        db.close();
+      });
+  });
+});
+
+router.post("/getDatosAlumno", (req, res) => {
+  let query = { photos: { $regex: req.body.matricula } };
+
+  mongoCliente.connect(url, function(err, db) {
+    if (err) throw err;
+
+    db.collection("alumnos")
+      .find(query)
+      .toArray(function(err, result) {
+        if (err) throw err;
+        // console.log(result);
+        res.json(result);
+
+        db.close();
+      });
+  });
+});
+
+router.post("/insertMarkers", (req, res) => {
+  // console.log(req);
+  const listMarkers = JSON.parse(req.body.markers);
+  console.log("HOLA MUNDO VIEJO");
+  console.log(listMarkers);
+
+  mongoCliente.connect(url, function(err, db) {
+    if (err) throw err;
     console.log(req.body);
-    //console.log("l");
-    
-    //console.log(req.body.long);
-    //console.log(req.body.lat);
 
-
-    //https://docs.mongodb.com/manual/reference/operator/query/near/
-    let query = {
-        location: {
-            $near: {
-                $geometry: {
-                    type: "Point",
-                    coordinates: [parseFloat(req.body.long), 
-                                  parseFloat(req.body.lat)]
-                },
-                $maxDistance: parseInt(req.body.distance)
-            }
-        }
-    };
-
-    if(req.body.type && req.body.type!='all') type = req.body.type;
-
-
-    mongoCliente.connect(url, function(err,db){
-    if (err) throw err;
-
-    db.collection("alumnos").find(query).toArray(function(err,result){
-        
-        if (err) throw err;
-        console.log(result);
-
-        res.json(result); 
-        
-        db.close();
-    });
-    
-   });
-
+    db.collection("alumnos").updateOne(
+      { photos: req.body.matricula + ".jpg" },
+      {
+        $set: { markers: listMarkers }
+      }
+    );
+  });
 });
 
-
-
-
-
-router.post("/getDatosAlumno", (req, res)=> {
-
-    let query = { photos: {'$regex': req.body.matricula} };
-
-    mongoCliente.connect(url, function(err,db){
-    if (err) throw err;
-
-    db.collection("alumnos").find(query).toArray(function(err,result){
-        
-        if (err) throw err;
-        console.log(result);
-        res.json(result); 
-        
-        db.close();
-    });
-    
-   });
-
-});
 module.exports = router;
 
 /*
