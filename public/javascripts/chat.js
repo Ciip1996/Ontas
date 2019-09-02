@@ -14,11 +14,11 @@ socket.on('disconnect', () => {
 
         if (d.matricula != sessionStorage.getItem("matricula")){
 
-            $("#usuariosLinea").append("<div onclick=\"IniciarChatCon(\'"+d.matricula+"\');\" id='"+d.matricula+"' style='height: 30px;border-bottom: 1px solid #d7dadc;cursor: pointer;'>"+
+            $("#usuariosLinea").append("<div onclick=\"IniciarChatCon(\'"+d.matricula+"\');\" id='"+d.matricula+"' style='height: 35px;border-bottom: 1px solid #d7dadc;cursor: pointer;'>"+
                                         "  <div style='float:left'>"+
-                                        "  <img src='/images/Estudiantes/"+d.img+"' style='width: 28px;border-radius: 50%;'> "+
+                                        "<div class='chat-profile-image' style='background-image: url(/images/Estudiantes/" +d.img+ ");' />" +
                                         "  </div> "+
-                                        "  <div style='float: left;padding-left: 5px;line-height: 25px;'>"+d.nombre+"</div> "+
+                                        "  <div style='float: left;padding-left: 15px;line-height: 35px;'>"+d.nombre+"</div> "+
                                         "  <div style='clear:both'></div> "+
                                         "  </div>");
         }
@@ -28,7 +28,6 @@ socket.on('disconnect', () => {
 });
 
 socket.on("usuarioLogeado", (data)=> {
-
     console.log(data);
     
     if(sessionStorage.getItem("matricula")!=null){
@@ -121,6 +120,8 @@ function salirSistema(){
 
  function crearNuevaVentanaChat(tipo, uiidMsg, idUsuario){ // tipo =  E (Emisor), R (Receptor)------- uiidMsg para poderChatear
 
+    /* look into the database the chat with the user idUsuario */
+    
     var uuidChat =  UUID.generate();
 
     var uuidMensaje = "";
@@ -137,7 +138,7 @@ function salirSistema(){
                         ' <span class="glyphicon glyphicon-user" style="font-size: 15px;padding-top: 10px;position: absolute;padding-left: 5px;color: #FFF;"></span>'+
                         '     <span  onclick=\"eliminarChat(\''+uuidChat+'\');\" id="barraChatUsuarios" data-abierto="1" class="glyphicon glyphicon-remove" style="color: #fff;position: absolute;right: 0px;padding-top: 10px;padding-right: 10px;cursor: pointer;"></span>'+
                         ' </div>'+
-                        ' <div id="'+uuidMensaje+'" style="height: 100%;padding-top: 5px;padding-left: 5px;overflow-y:  scroll;max-height: 160px;">'+
+                        ' <div id="'+uuidMensaje+'" style="height: 100%;padding: 15px;overflow-y:  scroll;max-height: 160px;">'+
                         ' </div>'+
                         ' <div style="border-top: 1px solid #ccc;"> '+
                         '    <input id="msg-'+uuidMensaje+'" type="text" style="width: 70%;font-size: 22px;border: 0px solid #ccc;"> '+
@@ -166,6 +167,23 @@ function MandarMensaje(_idMensaje){
     var usuarioDestino =  document.getElementById("idUsuario-"+_idMensaje).getAttribute("data-idUsuario");
     var usuario  =  sessionStorage.getItem("matricula");
     var idMensaje = _idMensaje;
+
+    /* send to mongo db the message */
+    $.ajax({
+        type: "POST",
+        url: "/insertChatMessage",
+        data: { message: mensaje, from: usuario, to: usuarioDestino},
+        success: function(data) {
+            console.log("succesful");
+            debugger;
+        },
+        error: function(xhr, status, error){
+          var errorMessage = xhr.status + ': ' + xhr.statusText
+          toastr.error('The following error was found: ' + errorMessage);
+        },
+        dataType: "json"
+      });
+
 
     socket.emit("mensaje",usuario,mensaje,usuarioDestino,idMensaje);
 

@@ -10,6 +10,7 @@ socket.on("disconnect", () => {
 
 function showDialog() {
   BootstrapDialog.show({
+    id: 'loginModal',
     size: BootstrapDialog.SIZE_SMALL,
     title: "Inicio de Sesión",
     message: $(
@@ -81,66 +82,73 @@ function consultaMatricula(matricula, dialog) {
     url: "/getDatosAlumno",
     data: { matricula: matricula },
     success: function(data) {
-      dialog.close();
+      if(data.length > 0){// only enter if there are users with that id
+        dialog.close();
+        console.log(data);
+        sessionStorage.setItem("matricula", matricula);
+        sessionStorage.setItem("mongoId", data[0]._id);
+        //marcadoresUsuarioActual = data[0].markers;
 
-      console.log(data);
-
-      sessionStorage.setItem("matricula", matricula);
-      sessionStorage.setItem("mongoId", data[0]._id);
-      //marcadoresUsuarioActual = data[0].markers;
-
-      class Usuario {
-        constructor(img, nombre, matricula) {
-          this.nombre = nombre;
-          this.matricula = matricula;
-          this.img = img;
+        class Usuario {
+          constructor(img, nombre, matricula) {
+            this.nombre = nombre;
+            this.matricula = matricula;
+            this.img = img;
+          }
         }
-      }
 
-      socket.emit(
-        "agrega usuario",
-        new Usuario(data[0].photos[0], data[0].name, matricula)
-      );
+        socket.emit("agrega usuario",new Usuario(data[0].photos[0], data[0].name, matricula));
 
-      customMarker = new google.maps.Marker({
-        map: map,
-        draggable: true,
-        animation: google.maps.Animation.DROP,
-        position: laSalleBajio,
-        icon: "/images/Estudiantes/" + data[0].photos[0]
-      });
-
-      customMarker.addListener("click", function(event) {
-        if (customMarker.getAnimation() !== null) {
-          customMarker.setAnimation(null);
-        } else {
-          customMarker.setAnimation(google.maps.Animation.BOUNCE);
-        }
-      });
-
-      customMarker.addListener("dragend", function(event) {
-        clearMarkers();
-        //console.log(event);
-        getPoints(event.latLng.lng(), event.latLng.lat(), 800, "all");
-      });
-
-      //MOSTRAR MARCADORES DEL USUARIO
-      data[0].markers.forEach(item => {
-        var infoMarker = {
-          name: item.title,
-          description: "description",
-          location: item.coordinates
-        };
-        var marker = new google.maps.Marker({
+        customMarker = new google.maps.Marker({
           map: map,
-          position: infoMarker.location,
-          title: infoMarker.name,
-          icon: null
+          draggable: true,
+          animation: google.maps.Animation.DROP,
+          position: laSalleBajio,
+          icon: "/images/Estudiantes/" + data[0].photos[0]
         });
-        currentMarkers.push(marker);
 
-        showMarker(infoMarker, marker, null);
-      });
+        customMarker.addListener("click", function(event) {
+          if (customMarker.getAnimation() !== null) {
+            customMarker.setAnimation(null);
+          } else {
+            customMarker.setAnimation(google.maps.Animation.BOUNCE);
+          }
+        });
+
+        customMarker.addListener("dragend", function(event) {
+          clearMarkers();
+          //console.log(event);
+          getPoints(event.latLng.lng(), event.latLng.lat(), 800, "all");
+        });
+
+        //MOSTRAR MARCADORES DEL USUARIO
+        data[0].markers.forEach(item => {
+          var infoMarker = {
+            name: item.title,
+            description: "description",
+            location: item.coordinates
+          };
+          var marker = new google.maps.Marker({
+            map: map,
+            position: infoMarker.location,
+            title: infoMarker.name,
+            icon: null
+          });
+          currentMarkers.push(marker);
+
+          showMarker(infoMarker, marker, null);
+        });
+        document.getElementById("lblLogin").innerText = " Logout";
+      }
+      else {
+        toastr.error('That user does not exist. Please Try again. ');
+        document.getElementById("txtMatricula").value = "";
+        $('#loginModal').modal('toggle');// hide/show the loginin modal
+      }
+    },
+    error: function(xhr, status, error){
+      var errorMessage = xhr.status + ': ' + xhr.statusText
+      toastr.error('The following error was found: ' + errorMessage);
     },
     dataType: "json"
   });
@@ -205,11 +213,18 @@ function saveMarkersInDB() {
 }
 
 function createMarker(item, icon) {
+  var image = {
+    url: icon,
+    scaledSize: new google.maps.Size(80, 80), // scaled size
+    origin: new google.maps.Point(0,0), // origin
+    anchor: new google.maps.Point(0, 0) // anchor
+  };
+
   var marker = new google.maps.Marker({
     map: map,
     position: item.location,
     title: item.name,
-    icon: icon
+    icon: image
   });
 
   currentMarkers.push(marker);
@@ -221,7 +236,7 @@ function createMarker(item, icon) {
 const showMarker = (content, marker, icon) => {
   if (icon != null) {
     var contentString =
-      '<div id="content" class="card" style="width: 18rem;">' +
+      '<div id="content" style="width: 18rem;">' +
       '<img src="' +
       content.photos[0] +
       '" class="card-img-top" alt="..." style="width: 30px;"> ' +

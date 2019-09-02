@@ -1,8 +1,43 @@
+html,
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
-a {
-  color: #00B7FF;
+#map {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: overlay;
+}
+
+.borderChat {
+  -webkit-border-top-left-radius: 5px;
+  -webkit-border-top-right-radius: 5px;
+  -moz-border-radius-topleft: 5px;
+  -moz-border-radius-topright: 5px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+}
+
+.boxShadowChat {
+  -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
+  -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
+}
+.chat-profile-image{
+  width: 25px;
+  height: 25px;
+  -webkit-border-radius: 25px;
+  -webkit-background-clip: padding-box;
+  -moz-border-radius: 25px;
+  -moz-background-clip: padding;
+  border-radius: 25px;
+  background-clip: padding-box;
+  margin: 4px 0 0 3px;
+  float: left;
+  background-size: cover;
+  background-position: center center;
 }

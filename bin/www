@@ -98,7 +98,7 @@ var marcadores = [];
 
 io.sockets.on("connection", function(socket){
 
-  //cuando el cliente emita su usuario
+  //cuando el cliente emita su usuario (after login)
   socket.on("agrega usuario", function(usuario){
  
     //console.log(usuario);
@@ -112,6 +112,10 @@ io.sockets.on("connection", function(socket){
 
     //Cuando el usuario ya esta logeado  entonces podemos dejar que emita mensajes
     socket.on("mensaje",function(usuario,mensaje,usuarioDestino,idMensaje){
+
+      /* save to mongo db */
+
+
       //podemos emitir solo el mensaje pero tambien podemos ver que lo esta poniendo
       //por ello mismo se le va pasar dos parametros para ver el usuario quien lo esta emitiendo
       io.sockets.emit("mensaje",usuario,mensaje,usuarioDestino,idMensaje);
