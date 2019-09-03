@@ -131,12 +131,14 @@ function consultaMatricula(matricula, dialog) {
           description: "description",
           location: item.coordinates
         };
-        var marker = new google.maps.Marker({
+        const marker = new google.maps.Marker({
           map: map,
           position: infoMarker.location,
           title: infoMarker.name,
           icon: null
         });
+        console.log(marker);
+        console.log(infoMarker);
         currentMarkers.push(marker);
 
         showMarker(infoMarker, marker, null);
@@ -219,6 +221,15 @@ function createMarker(item, icon) {
 }
 
 const showMarker = (content, marker, icon) => {
+  let newMarker = {
+    title: marker.title,
+    coordinates: {
+      lat: marker.position.lat(),
+      lng: marker.position.lng()
+    }
+  };
+  newMarker = JSON.stringify(newMarker);
+  console.log(newMarker);
   if (icon != null) {
     var contentString =
       '<div id="content" class="card" style="width: 18rem;">' +
@@ -248,6 +259,9 @@ const showMarker = (content, marker, icon) => {
       '<p id="firstHeading" class="card-text">' +
       content.description +
       "</p>" +
+      "<button type='button' class='btn btn-primary' onclick='enviarMarker(" +
+      newMarker +
+      ")'>Enviar marker</button>" +
       "</div>" +
       "</div>";
   }
