@@ -108,6 +108,24 @@ router.post("/insertMarkers", (req, res) => {
   });
 });
 
+router.post("/shareMarkers", (req, res) => {
+  const listMatriculas = JSON.parse(req.body.matriculas);
+  const marker = JSON.parse(req.body.marker);
+
+  mongoCliente.connect(url, function(err, db) {
+    if (err) throw err;
+
+    listMatriculas.forEach(element => {
+      db.collection("alumnos").updateOne(
+        { photos: element + ".jpg" },
+        {
+          $push: { markers: marker }
+        }
+      );
+    });
+  });
+});
+
 module.exports = router;
 
 /*

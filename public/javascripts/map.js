@@ -136,15 +136,31 @@ function consultaMatricula(matricula, dialog) {
           });
           currentMarkers.push(marker);
 
-          showMarker(infoMarker, marker, null);
+      customMarker.addListener("dragend", function(event) {
+        clearMarkers();
+        //console.log(event);
+        getPoints(event.latLng.lng(), event.latLng.lat(), 800, "all");
+      });
+
+      //MOSTRAR MARCADORES DEL USUARIO
+      data[0].markers.forEach(item => {
+        var infoMarker = {
+          name: item.title,
+          description: "description",
+          location: item.coordinates
+        };
+        const marker = new google.maps.Marker({
+          map: map,
+          position: infoMarker.location,
+          title: infoMarker.name,
+          icon: null
         });
-        document.getElementById("lblLogin").innerText = " Logout";
-      }
-      else {
-        toastr.error('That user does not exist. Please Try again. ');
-        document.getElementById("txtMatricula").value = "";
-        $('#loginModal').modal('toggle');// hide/show the loginin modal
-      }
+        console.log(marker);
+        console.log(infoMarker);
+        currentMarkers.push(marker);
+
+        showMarker(infoMarker, marker, null);
+      });
     },
     error: function(xhr, status, error){
       var errorMessage = xhr.status + ': ' + xhr.statusText
@@ -234,6 +250,15 @@ function createMarker(item, icon) {
 }
 
 const showMarker = (content, marker, icon) => {
+  let newMarker = {
+    title: marker.title,
+    coordinates: {
+      lat: marker.position.lat(),
+      lng: marker.position.lng()
+    }
+  };
+  newMarker = JSON.stringify(newMarker);
+  console.log(newMarker);
   if (icon != null) {
     var contentString =
       '<div id="content" style="width: 18rem;">' +
@@ -263,6 +288,9 @@ const showMarker = (content, marker, icon) => {
       '<p id="firstHeading" class="card-text">' +
       content.description +
       "</p>" +
+      "<button type='button' class='btn btn-primary' onclick='enviarMarker(" +
+      newMarker +
+      ")'>Enviar marker</button>" +
       "</div>" +
       "</div>";
   }
