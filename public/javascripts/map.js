@@ -83,6 +83,7 @@ function consultaMatricula(matricula, dialog) {
     data: { matricula: matricula },
     success: function(data) {
       if (data.length > 0) {
+        console.log("Hola undo");
         // only enter if there are users with that id
         dialog.close();
         console.log(data);
@@ -132,6 +133,7 @@ function consultaMatricula(matricula, dialog) {
             description: "description",
             location: item.coordinates
           };
+
           var marker = new google.maps.Marker({
             map: map,
             position: infoMarker.location,
@@ -139,32 +141,7 @@ function consultaMatricula(matricula, dialog) {
             icon: null
           });
           currentMarkers.push(marker);
-
-          customMarker.addListener("dragend", function(event) {
-            clearMarkers();
-            //console.log(event);
-            getPoints(event.latLng.lng(), event.latLng.lat(), 800, "all");
-          });
-
-          //MOSTRAR MARCADORES DEL USUARIO
-          data[0].markers.forEach(item => {
-            var infoMarker = {
-              name: item.title,
-              description: "description",
-              location: item.coordinates
-            };
-            const marker = new google.maps.Marker({
-              map: map,
-              position: infoMarker.location,
-              title: infoMarker.name,
-              icon: null
-            });
-            console.log(marker);
-            console.log(infoMarker);
-            currentMarkers.push(marker);
-
-            showMarker(infoMarker, marker, null);
-          });
+          showMarker(infoMarker, marker, null);
         });
       }
     },

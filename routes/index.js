@@ -7,7 +7,7 @@ router.get("/", function(req, res, next) {
 });
 
 var mongoCliente = require("mongodb").MongoClient;
-var url = "mongodb://localhost:27017/alumnosSalle";
+var url = "mongodb://localhost:27017/alumnos";
 //var url = "mongodb://localhost:27017/alumnos";
 
 router.post("/getpoints", (req, res) => {
@@ -72,22 +72,23 @@ router.post("/insertChatMessage", (req, res) => {
 
   console.log("HOLA MUNDO Message");
   console.log(MessageBody);
-  
+
   mongoCliente.connect(url, function(err, db) {
-    if (err){
+    if (err) {
       console.log("error");
       throw err;
     }
     db.collection("alumnos").update(
-      { photos: From }, { $push: { messages: {message: MessageBody, to: To , time: Time}}
-      }, function(err, res) {
+      { photos: From },
+      { $push: { messages: { message: MessageBody, to: To, time: Time } } },
+      function(err, res) {
         if (err) throw err;
         console.log("1 document inserted");
         db.close();
-      });
+      }
+    );
   });
 });
-
 
 router.post("/insertMarkers", (req, res) => {
   // console.log(req);

@@ -34,22 +34,24 @@ socket.on("usuarios", data => {
   $("#contenidoModal").html();
 
   data.forEach(d => {
-    usuarios +=
-      "<div id='" +
-      d.matricula +
-      "' style='height: 30px; border-bottom: 1px solid #d7dadc; cursor: pointer;' onclick='select(" +
-      d.matricula +
-      ")'>" +
-      "<div style='float:left'>" +
-      "<img src='/images/Estudiantes/" +
-      d.img +
-      "'style='width: 28px;border-radius: 50%;'/> " +
-      "</div> " +
-      "<div style='float: left;padding-left: 5px;line-height: 25px;'>" +
-      d.nombre +
-      "</div> " +
-      "<div style='clear:both'></div> " +
-      "</div>";
+    if (d.matricula != sessionStorage.getItem("matricula")) {
+      usuarios +=
+        "<div id='" +
+        d.matricula +
+        "_modal' style='height: 30px; border-bottom: 1px solid #d7dadc; cursor: pointer;' onclick='select(" +
+        d.matricula +
+        ")'>" +
+        "<div style='float:left'>" +
+        "<img src='/images/Estudiantes/" +
+        d.img +
+        "'style='width: 28px;border-radius: 50%;'/> " +
+        "</div> " +
+        "<div style='float: left;padding-left: 5px;line-height: 25px;'>" +
+        d.nombre +
+        "</div> " +
+        "<div style='clear:both'></div> " +
+        "</div>";
+    }
   });
 
   modal = modal.replace("LISTA_USUARIOS", usuarios);
@@ -68,19 +70,24 @@ const enviarMarker = marcador => {
  * el marcador, se guardan en un arreglo las matriculas.
  */
 const select = matricula => {
-  $("#" + matricula).css({
-    "background-color": "blue",
-    color: "white"
-  });
-
   sendToUsers.forEach((item, index) => {
-    if (item === matricula) {
+    if (item == matricula) {
       sendToUsers.splice(index, 1);
+      $("#" + matricula + "_modal").css({
+        "background-color": "#f5f6fa",
+        color: "#000000",
+        "border-radius": 10
+      });
       return;
     }
   });
-
   sendToUsers.push(matricula);
+
+  $("#" + matricula + "_modal").css({
+    "background-color": "#74b9ff",
+    color: "#f5f6fa",
+    "border-radius": 10
+  });
 
   console.log(sendToUsers);
 };
