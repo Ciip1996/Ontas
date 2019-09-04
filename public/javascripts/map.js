@@ -21,7 +21,7 @@ function showDialog() {
         label: "Consultar",
         cssClass: "btn-primary",
         hotkey: 13, // Enter.
-        action: function(dialog) {
+        action: function (dialog) {
           var matricula = document.getElementById("txtMatricula").value;
           consultaMatricula(matricula, dialog);
         }
@@ -39,7 +39,7 @@ function initMap() {
   });
 
   //Evento de agregar marcador por el usuario logeado
-  google.maps.event.addListener(map, "click", function(event) {
+  google.maps.event.addListener(map, "click", function (event) {
     BootstrapDialog.show({
       size: BootstrapDialog.SIZE_SMALL,
       title: "Agregar marcador",
@@ -51,7 +51,7 @@ function initMap() {
           label: "Insertar",
           cssClass: "btn-primary",
           hotkey: 13, // Enter.
-          action: function(dialog) {
+          action: function (dialog) {
             var title = document.getElementById("txtTitulo").value;
             var description = document.getElementById("txtDescripcion").value;
 
@@ -81,8 +81,8 @@ function consultaMatricula(matricula, dialog) {
     type: "POST",
     url: "/getDatosAlumno",
     data: { matricula: matricula },
-    success: function(data) {
-      if(data.length > 0){// only enter if there are users with that id
+    success: function (data) {
+      if (data.length > 0) {// only enter if there are users with that id
         dialog.close();
         console.log(data);
         sessionStorage.setItem("matricula", matricula);
@@ -97,7 +97,7 @@ function consultaMatricula(matricula, dialog) {
           }
         }
 
-        socket.emit("agrega usuario",new Usuario(data[0].photos[0], data[0].name, matricula));
+        socket.emit("agrega usuario", new Usuario(data[0].photos[0], data[0].name, matricula));
 
         customMarker = new google.maps.Marker({
           map: map,
@@ -107,7 +107,7 @@ function consultaMatricula(matricula, dialog) {
           icon: "/images/Estudiantes/" + data[0].photos[0]
         });
 
-        customMarker.addListener("click", function(event) {
+        customMarker.addListener("click", function (event) {
           if (customMarker.getAnimation() !== null) {
             customMarker.setAnimation(null);
           } else {
@@ -115,7 +115,7 @@ function consultaMatricula(matricula, dialog) {
           }
         });
 
-        customMarker.addListener("dragend", function(event) {
+        customMarker.addListener("dragend", function (event) {
           clearMarkers();
           //console.log(event);
           getPoints(event.latLng.lng(), event.latLng.lat(), 800, "all");
@@ -135,34 +135,35 @@ function consultaMatricula(matricula, dialog) {
             icon: null
           });
           currentMarkers.push(marker);
-
-      customMarker.addListener("dragend", function(event) {
-        clearMarkers();
-        //console.log(event);
-        getPoints(event.latLng.lng(), event.latLng.lat(), 800, "all");
-      });
-
-      //MOSTRAR MARCADORES DEL USUARIO
-      data[0].markers.forEach(item => {
-        var infoMarker = {
-          name: item.title,
-          description: "description",
-          location: item.coordinates
-        };
-        const marker = new google.maps.Marker({
-          map: map,
-          position: infoMarker.location,
-          title: infoMarker.name,
-          icon: null
         });
-        console.log(marker);
-        console.log(infoMarker);
-        currentMarkers.push(marker);
+        customMarker.addListener("dragend", function (event) {
+          clearMarkers();
+          //console.log(event);
+          getPoints(event.latLng.lng(), event.latLng.lat(), 800, "all");
+        });
 
-        showMarker(infoMarker, marker, null);
-      });
+        //MOSTRAR MARCADORES DEL USUARIO
+        data[0].markers.forEach(item => {
+          var infoMarker = {
+            name: item.title,
+            description: "description",
+            location: item.coordinates
+          };
+          const marker = new google.maps.Marker({
+            map: map,
+            position: infoMarker.location,
+            title: infoMarker.name,
+            icon: null
+          });
+          console.log(marker);
+          console.log(infoMarker);
+          currentMarkers.push(marker);
+
+          showMarker(infoMarker, marker, null);
+        });
+      }
     },
-    error: function(xhr, status, error){
+    error: function (xhr, status, error) {
       var errorMessage = xhr.status + ': ' + xhr.statusText
       toastr.error('The following error was found: ' + errorMessage);
     },
@@ -184,7 +185,7 @@ function getPoints(long, lat, distance, type) {
     type: "POST",
     url: "/getpoints",
     data: { long: long, lat: lat, distance: distance, type: type },
-    success: function(data) {
+    success: function (data) {
       data.forEach(p => {
         if (p._id != sessionStorage.getItem("mongoId")) {
           p.location.lng = p.location.coordinates[0];
@@ -221,7 +222,7 @@ function saveMarkersInDB() {
         })
       )
     },
-    success: function(data) {
+    success: function (data) {
       alert("Marcadores del usuairo " + currentMarkers);
     },
     dataType: "json"
@@ -232,7 +233,7 @@ function createMarker(item, icon) {
   var image = {
     url: icon,
     scaledSize: new google.maps.Size(80, 80), // scaled size
-    origin: new google.maps.Point(0,0), // origin
+    origin: new google.maps.Point(0, 0), // origin
     anchor: new google.maps.Point(0, 0) // anchor
   };
 
@@ -299,7 +300,7 @@ const showMarker = (content, marker, icon) => {
     content: contentString
   });
 
-  google.maps.event.addListener(marker, "click", function() {
+  google.maps.event.addListener(marker, "click", function () {
     infowindow.setContent(contentString);
     infowindow.open(map, this);
   });
