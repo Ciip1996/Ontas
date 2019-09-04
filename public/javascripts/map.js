@@ -10,7 +10,7 @@ socket.on("disconnect", () => {
 
 function showDialog() {
   BootstrapDialog.show({
-    id: 'loginModal',
+    id: "loginModal",
     size: BootstrapDialog.SIZE_SMALL,
     title: "Inicio de Sesión",
     message: $(
@@ -82,7 +82,8 @@ function consultaMatricula(matricula, dialog) {
     url: "/getDatosAlumno",
     data: { matricula: matricula },
     success: function(data) {
-      if(data.length > 0){// only enter if there are users with that id
+      if (data.length > 0) {
+        // only enter if there are users with that id
         dialog.close();
         console.log(data);
         sessionStorage.setItem("matricula", matricula);
@@ -97,7 +98,10 @@ function consultaMatricula(matricula, dialog) {
           }
         }
 
-        socket.emit("agrega usuario",new Usuario(data[0].photos[0], data[0].name, matricula));
+        socket.emit(
+          "agrega usuario",
+          new Usuario(data[0].photos[0], data[0].name, matricula)
+        );
 
         customMarker = new google.maps.Marker({
           map: map,
@@ -136,35 +140,37 @@ function consultaMatricula(matricula, dialog) {
           });
           currentMarkers.push(marker);
 
-      customMarker.addListener("dragend", function(event) {
-        clearMarkers();
-        //console.log(event);
-        getPoints(event.latLng.lng(), event.latLng.lat(), 800, "all");
-      });
+          customMarker.addListener("dragend", function(event) {
+            clearMarkers();
+            //console.log(event);
+            getPoints(event.latLng.lng(), event.latLng.lat(), 800, "all");
+          });
 
-      //MOSTRAR MARCADORES DEL USUARIO
-      data[0].markers.forEach(item => {
-        var infoMarker = {
-          name: item.title,
-          description: "description",
-          location: item.coordinates
-        };
-        const marker = new google.maps.Marker({
-          map: map,
-          position: infoMarker.location,
-          title: infoMarker.name,
-          icon: null
+          //MOSTRAR MARCADORES DEL USUARIO
+          data[0].markers.forEach(item => {
+            var infoMarker = {
+              name: item.title,
+              description: "description",
+              location: item.coordinates
+            };
+            const marker = new google.maps.Marker({
+              map: map,
+              position: infoMarker.location,
+              title: infoMarker.name,
+              icon: null
+            });
+            console.log(marker);
+            console.log(infoMarker);
+            currentMarkers.push(marker);
+
+            showMarker(infoMarker, marker, null);
+          });
         });
-        console.log(marker);
-        console.log(infoMarker);
-        currentMarkers.push(marker);
-
-        showMarker(infoMarker, marker, null);
-      });
+      }
     },
-    error: function(xhr, status, error){
-      var errorMessage = xhr.status + ': ' + xhr.statusText
-      toastr.error('The following error was found: ' + errorMessage);
+    error: function(xhr, status, error) {
+      var errorMessage = xhr.status + ": " + xhr.statusText;
+      toastr.error("The following error was found: " + errorMessage);
     },
     dataType: "json"
   });
@@ -232,7 +238,7 @@ function createMarker(item, icon) {
   var image = {
     url: icon,
     scaledSize: new google.maps.Size(80, 80), // scaled size
-    origin: new google.maps.Point(0,0), // origin
+    origin: new google.maps.Point(0, 0), // origin
     anchor: new google.maps.Point(0, 0) // anchor
   };
 
