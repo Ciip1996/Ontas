@@ -59,10 +59,27 @@ socket.on("usuarios", data => {
 });
 
 const enviarMarker = marcador => {
-  $("#contenidoModal").append(modal);
-  $("#myModal").modal();
-
+  // $("#contenidoModal").append(modal);
+  // $("#myModal").modal();
   marker = marcador;
+
+  BootstrapDialog.show({
+    id: "sendMarkersModal",
+    size: BootstrapDialog.SIZE_SMALL,
+    title: "Usuarios conectados",
+    message: $(usuarios),
+    buttons: [
+      {
+        label: "Enviar",
+        cssClass: "btn-primary",
+        hotkey: 13, // Enter.
+        action: function(dialog) {
+          enviarTodos();
+          dialog.close();
+        }
+      }
+    ]
+  });
 };
 
 /**
@@ -97,7 +114,6 @@ const select = matricula => {
  */
 const enviarTodos = () => {
   //FUNCIONALIDAD PARA GUARDAR EN LA BASE DE DATOS
-
   $.ajax({
     type: "POST",
     url: "/shareMarkers",
