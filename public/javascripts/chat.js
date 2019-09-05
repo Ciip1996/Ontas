@@ -131,6 +131,43 @@ function crearNuevaVentanaChat(tipo, uiidMsg, idUsuario) { // tipo =  E (Emisor)
     } else {
         uuidMensaje = UUID.generate();
     }
+    /* get array of messages from db */
+    var chatUser =  idUsuario;
+    var loggedUser  =  sessionStorage.getItem("matricula");
+
+    let messsagesReceived = [];
+    let messsagesSent = [];
+    $.ajax({
+        type: "GET",
+        url: "/getChatMessagesFromUser",
+        data: { from: loggedUser, to: chatUser},
+        success: function(data) {
+            console.log("succesful" + data);
+            messsagesReceived = data;
+            debugger;
+        },
+        error: function(xhr, status, error){
+            var stack = xhr.stack;
+            var errorMessage = xhr.status + ': ' + xhr.statusText;
+            toastr.error('The following error was found: ' + errorMessage);
+        },
+        dataType: "json"
+      });
+            /*
+            data.forEach(d => {
+                var msg = '<div class="row msg_container base_sent"> '+
+                ' <div class="col-md-10 col-xs-10"> '+
+                '     <div class="messages msg_sent"> '+
+                '         <p>'+d.usuario+':'+d.mensaje+'  </p> '+
+                '         <time datetime="2009-11-13T20:00">Timothy • 51 min</time> '+
+                '     </div> '+
+                ' </div> '+
+                ' <div class="col-md-2 col-xs-2 avatar"> '+
+                '   <span class="glyphicon glyphicon-user" aria-hidden="true" style="font-size: 35px;"></span> '+
+                ' </div> '+
+                ' </div> ';
+              $('#'+_idMensaje).append(msg).animate({scrollTop: $('#'+_idMensaje).prop('scrollHeight')}, 0);
+            });*/
 
     var TemplateHtmlChat = ' <div class="borderChat boxShadowChat" id="' + uuidChat + '" style="width: 225px;height: 230px;border:0px solid #ccc;position:relative;bottom:  0px;z-index: 9;background: #fff;max-height: 230px;-webkit-transition: max-height 0.8s;-moz-transition: max-height 0.8s;transition: max-height 0.8s;float:left;margin-left: 20px;">' +
         ' <div class="borderChat" style="border: 0px solid #ccc;height: 35px;background-color: rgb(51, 122, 183);"> ' +
@@ -175,7 +212,6 @@ function MandarMensaje(_idMensaje) {
         data: { message: mensaje, from: usuario, to: usuarioDestino },
         success: function (data) {
             console.log("succesful");
-            debugger;
         },
         error: function (xhr, status, error) {
             var errorMessage = xhr.status + ': ' + xhr.statusText

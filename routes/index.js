@@ -90,13 +90,43 @@ router.post("/insertChatMessage", (req, res) => {
   });
 });
 
+router.get("/getChatMessagesFromUser", (req, res) => {
+  // console.log(req);
+  var chatSender = req.query.from;
+  var chatDestinatary = req.query.to;
+
+  mongoCliente.connect(url, function (err, db) {
+    if (err) throw err;
+    /*db.collection("alumnos").find({ photos: { $regex: chatDestinatary } }, function (err, res) {
+      if (err) throw err;
+      console.log(res);
+    });*/
+    db.collection("alumnos").find({ photos: { $regex: chatDestinatary } }).toArray(function (err, result) {
+      if (err) throw err;
+      console.log(result);
+      res.json(result);
+      db.close();
+    });
+
+  });
+  /*mongoCliente.connect(url, function (err, db) {
+    if (err) throw err;
+    db.collection("alumnos").find({ photos: { $regex: chatSender } }).toArray(function (err, result) {
+      if (err) throw err;
+      console.log(result);
+      res.json(result);
+      db.close();
+    });
+  });*/
+});
+
 router.post("/insertMarkers", (req, res) => {
   // console.log(req);
   const listMarkers = JSON.parse(req.body.markers);
   console.log("inserting markers");
   console.log(listMarkers);
 
-  mongoCliente.connect(url, function(err, db) {
+  mongoCliente.connect(url, function (err, db) {
     if (err) throw err;
     console.log(req.body);
 

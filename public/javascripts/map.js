@@ -54,7 +54,6 @@ function initMap() {
           action: function(dialog) {
             var title = document.getElementById("txtTitulo").value;
             var description = document.getElementById("txtDescripcion").value;
-
             var item = {
               name: title,
               description: description,
@@ -125,20 +124,19 @@ function consultaMatricula(matricula, dialog) {
 
         //MOSTRAR MARCADORES DEL USUARIO
         data[0].markers.forEach(item => {
-          var infoMarker = {
-            name: item.title,
-            description: "description",
-            location: item.coordinates
-          };
-
+          var myLatLng = {lat: item.position[1], lng: item.position[0]};        
+          
           var marker = new google.maps.Marker({
+            position: myLatLng,
             map: map,
-            position: infoMarker.location,
-            title: infoMarker.name,
-            icon: null
+            title: item.title,
+            icon: null,
+            description: "Description here!"
           });
+          
           currentMarkers.push(marker);
-          showMarker(infoMarker, marker, null);
+          
+          showMarker(marker, null);
         });
       }
       else{
@@ -146,7 +144,6 @@ function consultaMatricula(matricula, dialog) {
         document.getElementById("txtMatricula").value = "";
       }
     },error: function(xhr, status, error) {
-      debugger;
       var errorMessage = xhr.status + ": " + xhr.statusText;
       toastr.error("The following error was found: " + errorMessage);
     },
@@ -163,7 +160,6 @@ function getPoints(long, lat, distance, type) {
   if (long == 0) long = laSalleBajio.lng;
   if (lat == 0) lat = laSalleBajio.lat;
   if (distance == 0) distance = 1000000000;
-
   $.ajax({
     type: "POST",
     url: "/getpoints",
@@ -213,27 +209,32 @@ function saveMarkersInDB() {
 }
 
 function createMarker(item, icon) {
-  var image = {
-    url: icon,
-    scaledSize: new google.maps.Size(80, 80), // scaled size
-    origin: new google.maps.Point(0, 0), // origin
-    anchor: new google.maps.Point(0, 0) // anchor
-  };
+  if(item.location.coordinates){
+    item.location.position = item.location.coordinates;
+  }
+  if(icon){
+    var image = {
+      url: icon,
+      scaledSize: new google.maps.Size(80, 80), // scaled size
+      origin: new google.maps.Point(0, 0), // origin
+      anchor: new google.maps.Point(0, 0) // anchor
+    };
+  }
 
   var marker = new google.maps.Marker({
     map: map,
     position: item.location,
     title: item.name,
-    icon: image
+    icon: image,
+    description: item.description
   });
-
   currentMarkers.push(marker);
 
   saveMarkersInDB();
-  showMarker(item, marker, icon);
+  showMarker(marker, icon);
 }
 
-const showMarker = (content, marker, icon) => {
+const showMarker = (marker, icon) => {
   let newMarker = {
     title: marker.title,
     coordinates: {
@@ -247,17 +248,17 @@ const showMarker = (content, marker, icon) => {
     var contentString =
       '<div id="content" style="width: 18rem;">' +
       '<img src="' +
-      content.photos[0] +
+      marker.icon.url +
       '" class="card-img-top" alt="..." style="width: 30px;"> ' +
       '<div class="card-body">' +
       '<h5 id="firstHeading"  class="card-title">' +
-      content.name +
+      marker.title +
       "</h5>" +
       '<p id="firstHeading"  class="card-text"> Lat:' +
-      content.location.coordinates[1] +
+      marker.position.lat() +
       "</p>" +
       '<p id="firstHeading"  class="card-text"> Lon:' +
-      content.location.coordinates[0] +
+      marker.position.lng() +
       "</p>" +
       "</div>" +
       "</div>";
@@ -267,10 +268,10 @@ const showMarker = (content, marker, icon) => {
       '<img src="images/lupa.png" class="card-img-top" alt="..." style="width: 20px;"> ' +
       '<div class="card-body">' +
       '<h5 id="title"  class="card-title">' +
-      content.name +
+      marker.title +
       "</h5>" +
       '<p id="firstHeading" class="card-text">' +
-      content.description +
+      marker.description +
       "</p>" +
       "<button type='button' class='btn btn-primary' onclick='enviarMarker(" +
       newMarker +
