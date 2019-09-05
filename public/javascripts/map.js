@@ -99,10 +99,7 @@ function consultaMatricula(matricula, dialog) {
           }
         }
 
-        socket.emit(
-          "agrega usuario",
-          new Usuario(data[0].photos[0], data[0].name, matricula)
-        );
+        socket.emit("agrega usuario",new Usuario(data[0].photos[0], data[0].name, matricula));
 
         customMarker = new google.maps.Marker({
           map: map,
@@ -144,8 +141,12 @@ function consultaMatricula(matricula, dialog) {
           showMarker(infoMarker, marker, null);
         });
       }
-    },
-    error: function(xhr, status, error) {
+      else{
+        toastr.error("No user was found please try again.");
+        document.getElementById("txtMatricula").value = "";
+      }
+    },error: function(xhr, status, error) {
+      debugger;
       var errorMessage = xhr.status + ": " + xhr.statusText;
       toastr.error("The following error was found: " + errorMessage);
     },
