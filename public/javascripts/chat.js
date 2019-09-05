@@ -1,130 +1,133 @@
 socket = io();
 
-socket.on('disconnect', () => {
-    console.log('you have been disconnected');
+socket.on("disconnect", () => {
+  console.log("you have been disconnected");
 });
 
-socket.on('usuarios', (data) => {
+socket.on("usuarios", data => {
+  $("#usuariosLinea").html("");
 
-    $("#usuariosLinea").html("");
+  data.forEach(d => {
+    //si hay uno repetido no lo agregue
 
-    data.forEach(d => {
-
-        //si hay uno repetido no lo agregue
-
-        if (d.matricula != sessionStorage.getItem("matricula")) {
-
-            $("#usuariosLinea").append("<div onclick=\"IniciarChatCon(\'" + d.matricula + "\');\" id='" + d.matricula + "' style='height: 35px;border-bottom: 1px solid #d7dadc;cursor: pointer;'>" +
-                "  <div style='float:left'>" +
-                "<div class='chat-profile-image' style='background-image: url(/images/Estudiantes/" + d.img + ");' />" +
-                "  </div> " +
-                "  <div style='float: left;padding-left: 15px;line-height: 35px;'>" + d.nombre + "</div> " +
-                "  <div style='clear:both'></div> " +
-                "  </div>");
-        }
-
-    });
-    console.log(data);
-});
-
-socket.on("usuarioLogeado", (data) => {
-    console.log(data);
-
-    if (sessionStorage.getItem("matricula") != null) {
-
-        if (sessionStorage.getItem("matricula") != data.matricula) {
-
-            toastr.success('Entró el usuario ' + data.nombre, 'Usuarios');
-        }
-    } else {
-        toastr.success('Entró el usuario ' + data.nombre, 'Usuarios');
+    if (d.matricula != sessionStorage.getItem("matricula")) {
+      $("#usuariosLinea").append(
+        "<div onclick=\"IniciarChatCon('" +
+          d.matricula +
+          "');\" id='" +
+          d.matricula +
+          "' style='height: 35px;border-bottom: 1px solid #d7dadc;cursor: pointer;'>" +
+          "  <div style='float:left'>" +
+          "<div class='chat-profile-image' style='background-image: url(/images/Estudiantes/" +
+          d.img +
+          ");' />" +
+          "  </div> " +
+          "  <div style='float: left;padding-left: 15px;line-height: 35px;'>" +
+          d.nombre +
+          "</div> " +
+          "  <div style='clear:both'></div> " +
+          "  </div>"
+      );
     }
-
+  });
+  console.log(data);
 });
 
+socket.on("usuarioLogeado", data => {
+  console.log(data);
 
-socket.on('disconnect', () => {
-    console.log('you have been disconnected');
+  if (sessionStorage.getItem("matricula") != null) {
+    if (sessionStorage.getItem("matricula") != data.matricula) {
+      toastr.success("Entró el usuario " + data.nombre, "Usuarios");
+    }
+  } else {
+    toastr.success("Entró el usuario " + data.nombre, "Usuarios");
+  }
 });
 
-socket.on("marcadores", (data) => {
-    console.log(data);
+socket.on("disconnect", () => {
+  console.log("you have been disconnected");
+});
+
+socket.on("marcadores", data => {
+  console.log(data);
 });
 
 socket.on("mensaje", (usuario, mensaje, usuarioDestino, idMensaje) => {
+  if (sessionStorage.getItem("matricula") != null) {
+    if (usuarioDestino == sessionStorage.getItem("matricula")) {
+      //Verifica si ya existe un elemento del chat
+      if (document.getElementById(idMensaje) == null) {
+        crearNuevaVentanaChat("R", idMensaje, usuario);
 
-    if (sessionStorage.getItem("matricula") != null) {
+        var msg =
+          '<div class="row msg_container base_receive"> ' +
+          ' <div class="col-md-2 col-xs-2 avatar"> ' +
+          '   <span class="glyphicon glyphicon-user" aria-hidden="true" style="font-size: 35px;"></span> ' +
+          " </div> " +
+          ' <div class="col-md-10 col-xs-10 drop_window> ' +
+          '     <div class="messages msg_receive drop_target"> ' +
+          "         <p>" +
+          usuario +
+          ":" +
+          mensaje +
+          "  </p> " +
+          '         <time datetime="2009-11-13T20:00">Timothy • 51 min</time> ' +
+          "     </div> " +
+          " </div> " +
+          " </div> ";
 
-        if (usuarioDestino == sessionStorage.getItem("matricula")) {
+        $("#" + idMensaje)
+          .append(msg)
+          .animate({ scrollTop: $("#" + idMensaje).prop("scrollHeight") }, 0);
+      } else {
+        var msg =
+          '<div class="row msg_container base_receive"> ' +
+          ' <div class="col-md-2 col-xs-2 avatar"> ' +
+          '     <span class="glyphicon glyphicon-user" aria-hidden="true" style="font-size: 35px;"></span>  ' +
+          " </div> " +
+          ' <div class="col-md-10 col-xs-10 drop_window"> ' +
+          '     <div class="messages msg_receive drop_target"> ' +
+          "         <p>" +
+          usuario +
+          ":" +
+          mensaje +
+          "  </p> " +
+          '         <time datetime="2009-11-13T20:00">Timothy • 51 min</time> ' +
+          "     </div> " +
+          " </div> " +
+          " </div> ";
 
-            //Verifica si ya existe un elemento del chat
-            if (document.getElementById(idMensaje) == null) {
-
-                crearNuevaVentanaChat("R", idMensaje, usuario);
-
-                var msg = '<div class="row msg_container base_receive"> ' +
-                    ' <div class="col-md-2 col-xs-2 avatar"> ' +
-                    '   <span class="glyphicon glyphicon-user" aria-hidden="true" style="font-size: 35px;"></span> ' +
-                    ' </div> ' +
-                    ' <div class="col-md-10 col-xs-10"> ' +
-                    '     <div class="messages msg_receive"> ' +
-                    '         <p>' + usuario + ':' + mensaje + '  </p> ' +
-                    '         <time datetime="2009-11-13T20:00">Timothy • 51 min</time> ' +
-                    '     </div> ' +
-                    ' </div> ' +
-                    ' </div> ';
-
-                $('#' + idMensaje)
-                    .append(msg)
-                    .animate({ scrollTop: $('#' + idMensaje).prop('scrollHeight') }, 0);
-
-            } else {
-
-                var msg = '<div class="row msg_container base_receive"> ' +
-                    ' <div class="col-md-2 col-xs-2 avatar"> ' +
-                    '     <span class="glyphicon glyphicon-user" aria-hidden="true" style="font-size: 35px;"></span>  ' +
-                    ' </div> ' +
-                    ' <div class="col-md-10 col-xs-10"> ' +
-                    '     <div class="messages msg_receive"> ' +
-                    '         <p>' + usuario + ':' + mensaje + '  </p> ' +
-                    '         <time datetime="2009-11-13T20:00">Timothy • 51 min</time> ' +
-                    '     </div> ' +
-                    ' </div> ' +
-                    ' </div> ';
-
-                $('#' + idMensaje)
-                    .append(msg)
-                    .animate({ scrollTop: $('#' + idMensaje).prop('scrollHeight') }, 0);
-
-            }
-        }
-
+        $("#" + idMensaje)
+          .append(msg)
+          .animate({ scrollTop: $("#" + idMensaje).prop("scrollHeight") }, 0);
+      }
     }
-    console.log(usuario);
-    console.log(mensaje);
-    console.log(usuarioDestino);
-    console.log(idMensaje);
+  }
+  console.log(usuario);
+  console.log(mensaje);
+  console.log(usuarioDestino);
+  console.log(idMensaje);
 });
 
 function salirSistema() {
+  if (sessionStorage.getItem("matricula") != null) {
+    sessionStorage.removeItem("matricula");
 
-    if (sessionStorage.getItem("matricula") != null) {
+    socket.emit("disconnect", socket);
 
-        sessionStorage.removeItem("matricula");
-
-        socket.emit('disconnect', socket);
-
-        window.location.reload();
-    }
+    window.location.reload();
+  }
 }
 
-function crearNuevaVentanaChat(tipo, uiidMsg, idUsuario) { // tipo =  E (Emisor), R (Receptor)------- uiidMsg para poderChatear
+function crearNuevaVentanaChat(tipo, uiidMsg, idUsuario) {
+  // tipo =  E (Emisor), R (Receptor)------- uiidMsg para poderChatear
 
-    /* look into the database the chat with the user idUsuario */
+  /* look into the database the chat with the user idUsuario */
 
-    var uuidChat = UUID.generate();
+  var uuidChat = UUID.generate();
 
-    var uuidMensaje = "";
+  var uuidMensaje = "";
 
     if (uiidMsg != null) {  //Esto es para el receptor en el supuesto de que el no iniciara el dialogo con el chat
         uuidMensaje = uiidMsg;
@@ -185,25 +188,40 @@ function crearNuevaVentanaChat(tipo, uiidMsg, idUsuario) { // tipo =  E (Emisor)
         ' <input type="hidden" id="idUsuario-' + uuidMensaje + '" data-idUsuario="' + idUsuario + '" /> ' +
         ' </div>';
 
-    $("#contenidoChat").append(TemplateHtmlChat);
-
+  $("#contenidoChat").append(TemplateHtmlChat);
 }
 
 function eliminarChat(id) {
-    $("#" + id).remove();
+  $("#" + id).remove();
 }
 
-
 function IniciarChatCon(idUsuarioDestino) {
-    crearNuevaVentanaChat("E", null, idUsuarioDestino);
+  crearNuevaVentanaChat("E", null, idUsuarioDestino);
 }
 
 function MandarMensaje(_idMensaje) {
+  var mensaje = document.getElementById("msg-" + _idMensaje).value;
+  var usuarioDestino = document
+    .getElementById("idUsuario-" + _idMensaje)
+    .getAttribute("data-idUsuario");
+  var usuario = sessionStorage.getItem("matricula");
+  var idMensaje = _idMensaje;
 
-    var mensaje = document.getElementById("msg-" + _idMensaje).value;
-    var usuarioDestino = document.getElementById("idUsuario-" + _idMensaje).getAttribute("data-idUsuario");
-    var usuario = sessionStorage.getItem("matricula");
-    var idMensaje = _idMensaje;
+  /* send to mongo db the message */
+  $.ajax({
+    type: "POST",
+    url: "/insertChatMessage",
+    data: { message: mensaje, from: usuario, to: usuarioDestino },
+    success: function(data) {
+      console.log("succesful");
+      debugger;
+    },
+    error: function(xhr, status, error) {
+      var errorMessage = xhr.status + ": " + xhr.statusText;
+      toastr.error("The following error was found: " + errorMessage);
+    },
+    dataType: "json"
+  });
 
     /* send to mongo db the message */
     $.ajax({
@@ -219,24 +237,28 @@ function MandarMensaje(_idMensaje) {
         },
         dataType: "json"
     });
+  socket.emit("mensaje", usuario, mensaje, usuarioDestino, idMensaje);
 
+  var msg =
+    '<div class="row msg_container base_sent"> ' +
+    ' <div class="col-md-10 col-xs-10"> ' +
+    '     <div class="messages msg_sent"> ' +
+    "         <p>" +
+    usuario +
+    ":" +
+    mensaje +
+    "  </p> " +
+    '         <time datetime="2009-11-13T20:00">Timothy • 51 min</time> ' +
+    "     </div> " +
+    " </div> " +
+    ' <div class="col-md-2 col-xs-2 avatar"> ' +
+    '   <span class="glyphicon glyphicon-user" aria-hidden="true" style="font-size: 35px;"></span> ' +
+    " </div> " +
+    " </div> ";
 
-    socket.emit("mensaje", usuario, mensaje, usuarioDestino, idMensaje);
+  $("#" + _idMensaje)
+    .append(msg)
+    .animate({ scrollTop: $("#" + _idMensaje).prop("scrollHeight") }, 0);
 
-    var msg = '<div class="row msg_container base_sent"> ' +
-        ' <div class="col-md-10 col-xs-10"> ' +
-        '     <div class="messages msg_sent"> ' +
-        '         <p>' + usuario + ':' + mensaje + '  </p> ' +
-        '         <time datetime="2009-11-13T20:00">Timothy • 51 min</time> ' +
-        '     </div> ' +
-        ' </div> ' +
-        ' <div class="col-md-2 col-xs-2 avatar"> ' +
-        '   <span class="glyphicon glyphicon-user" aria-hidden="true" style="font-size: 35px;"></span> ' +
-        ' </div> ' +
-        ' </div> ';
-
-    $('#' + _idMensaje).append(msg).animate({ scrollTop: $('#' + _idMensaje).prop('scrollHeight') }, 0);
-
-    document.getElementById("msg-" + _idMensaje).value = "";
+  document.getElementById("msg-" + _idMensaje).value = "";
 }
-
