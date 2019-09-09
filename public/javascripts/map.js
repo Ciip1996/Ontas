@@ -2,6 +2,8 @@ var map;
 var infowindow;
 var laSalleBajio = { lat: 21.150908, lng: -101.71110470000002 };
 var currentMarkers = [];
+var studentMarkers = [];
+
 var customMarker = null;
 
 socket.on("disconnect", () => {
@@ -81,8 +83,8 @@ function consultaMatricula(matricula, dialog) {
     url: "/getDatosAlumno",
     data: { matricula: matricula },
     success: function(data) {
-      if (data.length > 0) {
-        console.log("Hola undo");
+      if (data.length > 0) 
+      {
         // only enter if there are users with that id
         dialog.close();
         console.log(data);
@@ -124,18 +126,15 @@ function consultaMatricula(matricula, dialog) {
 
         //MOSTRAR MARCADORES DEL USUARIO
         data[0].markers.forEach(item => {
-          var myLatLng = {lat: item.position[1], lng: item.position[0]};        
-          
+          var myLatLng = {lat: item.position[0], lng: item.position[1]};        
           var marker = new google.maps.Marker({
             position: myLatLng,
             map: map,
             title: item.title,
             icon: null,
-            description: "Description here!"
+            description: item.description
           });
-          
           currentMarkers.push(marker);
-          
           showMarker(marker, null);
         });
       }
@@ -152,8 +151,10 @@ function consultaMatricula(matricula, dialog) {
 }
 
 function clearMarkers() {
-  currentMarkers.forEach(m => m.setMap(null));
-  currentMarkers = [];
+  studentMarkers.forEach(m =>{
+    m.setMap(null);
+  });
+  studentMarkers = [];
 }
 
 function getPoints(long, lat, distance, type) {
@@ -188,7 +189,7 @@ function saveMarkersInDB() {
     type: "POST",
     url: "/insertMarkers",
     data: {
-      matricula: "60122",
+      matricula: sessionStorage.getItem("matricula"),
       markers: JSON.stringify(
         currentMarkers.map(item => {
           return {
@@ -209,9 +210,19 @@ function saveMarkersInDB() {
 }
 
 function createMarker(item, icon) {
-  if(item.location.coordinates){
+  if(item.location.coordinates){//changing how the document is since there was a problem matching both user and markers info
     item.location.position = item.location.coordinates;
   }
+
+  var marker = new google.maps.Marker({
+    map: map,
+    position: item.location,
+    title: item.name,
+    description: item.description,
+    icon: null,
+    type: null
+  });
+
   if(icon){
     var image = {
       url: icon,
@@ -219,18 +230,13 @@ function createMarker(item, icon) {
       origin: new google.maps.Point(0, 0), // origin
       anchor: new google.maps.Point(0, 0) // anchor
     };
+    marker.icon = image;
+    marker.type = "student";
+    studentMarkers.push(marker);
+  }else{
+    currentMarkers.push(marker);
+    saveMarkersInDB();
   }
-
-  var marker = new google.maps.Marker({
-    map: map,
-    position: item.location,
-    title: item.name,
-    icon: image,
-    description: item.description
-  });
-  currentMarkers.push(marker);
-
-  saveMarkersInDB();
   showMarker(marker, icon);
 }
 

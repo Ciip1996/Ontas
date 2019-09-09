@@ -11,9 +11,8 @@ var url = "mongodb://localhost:27017/alumnos";
 //var url = "mongodb://localhost:27017/alumnos";
 
 router.post("/getpoints", (req, res) => {
-  debugger;
-  // console.log("parametros");
-  // console.log(req.body);
+  console.log("parametros");
+  console.log(req.body);
 
   //https://docs.mongodb.com/manual/reference/operator/query/near/
   let query = {
@@ -37,8 +36,6 @@ router.post("/getpoints", (req, res) => {
       .find(query)
       .toArray(function(err, result) {
         if (err) throw err;
-        console.log(result);
-
         res.json(result);
         db.close();
       });
@@ -46,7 +43,7 @@ router.post("/getpoints", (req, res) => {
 });
 
 router.post("/getDatosAlumno", (req, res) => {
-  let query = { photos: { $regex: req.body.matricula } };
+  let query = { photos: { $regex: req.body.matricula } }; 
 
   mongoCliente.connect(url, function(err, db) {
     if (err) throw err;
@@ -55,7 +52,6 @@ router.post("/getDatosAlumno", (req, res) => {
       .find(query)
       .toArray(function(err, result) {
         if (err) throw err;
-        // console.log(result);
         res.json(result);
 
         db.close();
@@ -64,18 +60,13 @@ router.post("/getDatosAlumno", (req, res) => {
 });
 
 router.post("/insertChatMessage", (req, res) => {
-  // console.log(req);
   var MessageBody = req.body.message;
   var From = req.body.from + ".jpg";
   var To = req.body.to;
   var Time = new Date();
 
-  console.log("HOLA MUNDO Message");
-  console.log(MessageBody);
-
   mongoCliente.connect(url, function(err, db) {
     if (err) {
-      console.log("error");
       throw err;
     }
     db.collection("alumnos").update(
@@ -91,7 +82,6 @@ router.post("/insertChatMessage", (req, res) => {
 });
 
 router.get("/getChatMessagesFromUser", (req, res) => {
-  // console.log(req);
   var chatSender = req.query.from;
   var chatDestinatary = req.query.to;
 
@@ -99,11 +89,9 @@ router.get("/getChatMessagesFromUser", (req, res) => {
     if (err) throw err;
     /*db.collection("alumnos").find({ photos: { $regex: chatDestinatary } }, function (err, res) {
       if (err) throw err;
-      console.log(res);
     });*/
     db.collection("alumnos").find({ photos: { $regex: chatDestinatary } }).toArray(function (err, result) {
       if (err) throw err;
-      console.log(result);
       res.json(result);
       db.close();
     });
@@ -113,7 +101,6 @@ router.get("/getChatMessagesFromUser", (req, res) => {
     if (err) throw err;
     db.collection("alumnos").find({ photos: { $regex: chatSender } }).toArray(function (err, result) {
       if (err) throw err;
-      console.log(result);
       res.json(result);
       db.close();
     });
@@ -121,14 +108,12 @@ router.get("/getChatMessagesFromUser", (req, res) => {
 });
 
 router.post("/insertMarkers", (req, res) => {
-  // console.log(req);
   const listMarkers = JSON.parse(req.body.markers);
   console.log("inserting markers");
   console.log(listMarkers);
 
   mongoCliente.connect(url, function (err, db) {
     if (err) throw err;
-    console.log(req.body);
 
     db.collection("alumnos").updateOne(
       { photos: req.body.matricula + ".jpg" },
@@ -185,7 +170,6 @@ router.post("/getpointsAll", (req, res)=> {
     db.collection("alumnos").find(query).toArray(function(err,result){
         
         if (err) throw err;
-        console.log(result);
 
         res.json(result); 
         
