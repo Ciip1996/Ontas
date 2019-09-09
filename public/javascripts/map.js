@@ -107,7 +107,7 @@ function consultaMatricula(matricula, dialog) {
         customMarker = new google.maps.Marker({
           map: map,
           draggable: true,
-          animation: google.maps.Animation.DROP,
+          animation: google.maps.Animation.BOUNCE,
           position: laSalleBajio,
           icon: "/images/Estudiantes/" + data[0].photos[0]
         });
@@ -134,7 +134,8 @@ function consultaMatricula(matricula, dialog) {
             map: map,
             title: item.title,
             icon: null,
-            description: item.description
+            description: item.description,
+            animation: google.maps.Animation.DROP
           });
           currentMarkers.push(marker);
           showMarker(marker, null);
@@ -224,6 +225,7 @@ function createMarker(item, icon) {
         position: myLatLng,
         title: item.name,
         description: item.description,
+        animation: google.maps.Animation.DROP,
         icon: null,
         type: null
       });
@@ -246,6 +248,7 @@ function createMarker(item, icon) {
       position: myLatLng,
       title: item.name,
       description: item.description,
+      animation: google.maps.Animation.DROP,
       icon: null,
       type: null
     });
