@@ -59,7 +59,9 @@ function initMap() {
             var item = {
               name: title,
               description: description,
-              location: event.latLng
+              position: {
+                lat: event.latLng.lat(), lng: event.latLng.lng() 
+              }
             };
             createMarker(item, null);
             //socket.emit("",usuario, marker);// send the data to mongo db
@@ -126,7 +128,7 @@ function consultaMatricula(matricula, dialog) {
 
         //MOSTRAR MARCADORES DEL USUARIO
         data[0].markers.forEach(item => {
-          var myLatLng = {lat: item.position[0], lng: item.position[1]};        
+          var myLatLng = {lat: item.position.lat, lng: item.position.lng};        
           var marker = new google.maps.Marker({
             position: myLatLng,
             map: map,
@@ -192,11 +194,15 @@ function saveMarkersInDB() {
       matricula: sessionStorage.getItem("matricula"),
       markers: JSON.stringify(
         currentMarkers.map(item => {
+          var pos =  item.getPosition();
+          var latit = pos.lat();
+          var longit = pos.lng();
           return {
             title: item.title,
-            coordinates: {
-              lat: item.position.lat(),
-              lng: item.position.lng()
+            description: item.description,
+            position: {
+              lat: latit,
+              lng: longit
             }
           };
         })
@@ -210,46 +216,46 @@ function saveMarkersInDB() {
 }
 
 function createMarker(item, icon) {
-  if(item.location.coordinates){//changing how the document is since there was a problem matching both user and markers info
-    item.location.position = item.location.coordinates;
-  }
-
-  var marker = new google.maps.Marker({
-    map: map,
-    position: item.location,
-    title: item.name,
-    description: item.description,
-    icon: null,
-    type: null
-  });
-
-  if(icon){
-    var image = {
-      url: icon,
-      scaledSize: new google.maps.Size(80, 80), // scaled size
-      origin: new google.maps.Point(0, 0), // origin
-      anchor: new google.maps.Point(0, 0) // anchor
-    };
-    marker.icon = image;
-    marker.type = "student";
-    studentMarkers.push(marker);
-  }else{
+  try {
+    if(item.location.coordinates){//changing how the document is since there was a problem matching both user and markers info
+      var myLatLng = {lat: item.location.lat, lng: item.location.lng};
+      var marker = new google.maps.Marker({
+        map: map,
+        position: myLatLng,
+        title: item.name,
+        description: item.description,
+        icon: null,
+        type: null
+      });
+  
+      var image = {
+        url: icon,
+        scaledSize: new google.maps.Size(80, 80), // scaled size
+        origin: new google.maps.Point(0, 0), // origin
+        anchor: new google.maps.Point(0, 0) // anchor
+      };
+      marker.icon = image;
+      marker.type = "student";
+      studentMarkers.push(marker);
+  
+    }
+  } catch (error) { 
+    var myLatLng = {lat: item.position.lat, lng: item.position.lng};
+    var marker = new google.maps.Marker({
+      map: map,
+      position: myLatLng,
+      title: item.name,
+      description: item.description,
+      icon: null,
+      type: null
+    });
     currentMarkers.push(marker);
     saveMarkersInDB();
-  }
+   }
   showMarker(marker, icon);
 }
 
 const showMarker = (marker, icon) => {
-  let newMarker = {
-    title: marker.title,
-    coordinates: {
-      lat: marker.position.lat(),
-      lng: marker.position.lng()
-    }
-  };
-  newMarker = JSON.stringify(newMarker);
-  console.log(newMarker);
   if (icon != null) {
     var contentString =
       '<div id="content" style="width: 18rem;">' +
@@ -269,6 +275,13 @@ const showMarker = (marker, icon) => {
       "</div>" +
       "</div>";
   } else {
+    let newMarker = {
+      title: marker.title,
+      description: marker.description,
+      position: [marker.position.lat(), marker.position.lng()]
+    };
+    newMarker = JSON.stringify(newMarker);
+    console.log(newMarker);  
     var contentString =
       '<div id="content" class="card" style="width: 18rem;">' +
       '<img src="images/lupa.png" class="card-img-top" alt="..." style="width: 20px;"> ' +
