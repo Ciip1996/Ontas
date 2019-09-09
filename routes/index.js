@@ -89,9 +89,19 @@ router.get("/getChatMessagesFromUser", (req, res) => {
     if (err) throw err;
     /*db.collection("alumnos").find({ photos: { $regex: chatDestinatary } }, function (err, res) {
       if (err) throw err;
-    });*/
-    db.collection("alumnos").find({ photos: { $regex: chatDestinatary } }).toArray(function (err, result) {
-      if (err) throw err;
+    });*/ { messages: 1}
+    db.collection("alumnos").find({ 
+      photos: 
+      { 
+        $regex: chatDestinatary 
+      }
+    }, 
+    {
+      messages: 1, name: 1
+    }).toArray(function (err, result) {
+      if (err) {
+        throw err;
+      }
       res.json(result);
       db.close();
     });
