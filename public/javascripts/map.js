@@ -4,19 +4,14 @@ var laSalleBajio = { lat: 21.150908, lng: -101.71110470000002 };
 var currentMarkers = [];
 var studentMarkers = [];
 
+var markerArray;
+var directionsService;
+var directionsRenderer;
+var origin;
+var destination;
+var stepDisplay;
+
 var customMarker = null;
-
-var markerArray = [];
-var directionsService = new google.maps.DirectionsService();
-
-//DEFAULT
-var origin = new google.maps.LatLng(21.167987, -101.6840177);
-var destination = new google.maps.LatLng(21.15233, -101.7140047);
-
-// Create a renderer for directions and bind it to the map.
-var directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
-// Instantiate an info window to hold step text.
-var stepDisplay = new google.maps.InfoWindow();
 
 socket.on("disconnect", () => {
   console.log("you have been disconnected");
@@ -47,6 +42,13 @@ function showDialog() {
 function initMap() {
   showDialog();
 
+  markerArray = [];
+  directionsService = new google.maps.DirectionsService();
+  directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
+  origin = new google.maps.LatLng(21.167987, -101.6840177);
+  destination = new google.maps.LatLng(21.15233, -101.7140047);
+  stepDisplay = new google.maps.InfoWindow();
+
   map = new google.maps.Map(document.getElementById("map"), {
     center: laSalleBajio,
     zoom: 15
@@ -55,15 +57,15 @@ function initMap() {
   var menuRoutes = document.getElementById("menu_routes");
   map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(menuRoutes);
 
-  calculateAndDisplayRoute(
-    directionsRenderer,
-    directionsService,
-    markerArray,
-    stepDisplay,
-    map,
-    origin,
-    destination
-  );
+  // calculateAndDisplayRoute(
+  //   directionsRenderer,
+  //   directionsService,
+  //   markerArray,
+  //   stepDisplay,
+  //   map,
+  //   origin,
+  //   destination
+  // );
 
   // //DISPLAY DIRECTIONS
   // directionsDisplay.setMap(map);
@@ -89,7 +91,8 @@ function initMap() {
               name: title,
               description: description,
               position: {
-                lat: event.latLng.lat(), lng: event.latLng.lng() 
+                lat: event.latLng.lat(),
+                lng: event.latLng.lng()
               }
             };
             createMarker(item, null);
@@ -160,7 +163,7 @@ function consultaMatricula(matricula, dialog) {
 
         //MOSTRAR MARCADORES DEL USUARIO
         data[0].markers.forEach(item => {
-          var myLatLng = {lat: item.position.lat, lng: item.position.lng};        
+          var myLatLng = { lat: item.position.lat, lng: item.position.lng };
           var marker = new google.maps.Marker({
             position: myLatLng,
             map: map,
@@ -187,7 +190,7 @@ function consultaMatricula(matricula, dialog) {
 }
 
 function clearMarkers() {
-  studentMarkers.forEach(m =>{
+  studentMarkers.forEach(m => {
     m.setMap(null);
   });
   studentMarkers = [];
@@ -228,7 +231,7 @@ function saveMarkersInDB() {
       matricula: sessionStorage.getItem("matricula"),
       markers: JSON.stringify(
         currentMarkers.map(item => {
-          var pos =  item.getPosition();
+          var pos = item.getPosition();
           var latit = pos.lat();
           var longit = pos.lng();
           return {
@@ -251,8 +254,9 @@ function saveMarkersInDB() {
 
 function createMarker(item, icon) {
   try {
-    if(item.location.coordinates){//changing how the document is since there was a problem matching both user and markers info
-      var myLatLng = {lat: item.location.lat, lng: item.location.lng};
+    if (item.location.coordinates) {
+      //changing how the document is since there was a problem matching both user and markers info
+      var myLatLng = { lat: item.location.lat, lng: item.location.lng };
       var marker = new google.maps.Marker({
         map: map,
         position: myLatLng,
@@ -262,7 +266,7 @@ function createMarker(item, icon) {
         icon: null,
         type: null
       });
-  
+
       var image = {
         url: icon,
         scaledSize: new google.maps.Size(80, 80), // scaled size
@@ -272,10 +276,9 @@ function createMarker(item, icon) {
       marker.icon = image;
       marker.type = "student";
       studentMarkers.push(marker);
-  
     }
-  } catch (error) { 
-    var myLatLng = {lat: item.position.lat, lng: item.position.lng};
+  } catch (error) {
+    var myLatLng = { lat: item.position.lat, lng: item.position.lng };
     var marker = new google.maps.Marker({
       map: map,
       position: myLatLng,
@@ -287,11 +290,17 @@ function createMarker(item, icon) {
     });
     currentMarkers.push(marker);
     saveMarkersInDB();
-   }
+  }
   showMarker(marker, icon);
 }
 
 const showMarker = (marker, icon) => {
+  directionsRenderer = JSON.stringify(directionsRenderer);
+  directionsService = JSON.stringify(directionsService);
+  markerArray = JSON.stringify(markerArray);
+  stepDisplay = JSON.stringify(stepDisplay);
+  map = JSON.stringify(map);
+
   if (icon != null) {
     var contentString =
       '<div id="content" style="width: 18rem;">' +
@@ -308,6 +317,21 @@ const showMarker = (marker, icon) => {
       '<p id="firstHeading"  class="card-text"> Lon:' +
       marker.position.lng() +
       "</p>" +
+      '<button type="button" class="btn btn-primary" onclick="calculateAndDisplayRoute(' +
+      directionsRenderer +
+      "," +
+      directionsService +
+      "," +
+      markerArray +
+      "," +
+      stepDisplay +
+      "," +
+      map +
+      "," +
+      origin +
+      "," +
+      destination +
+      ')">Ver ruta</button>' +
       "</div>" +
       "</div>";
   } else {
@@ -317,7 +341,7 @@ const showMarker = (marker, icon) => {
       position: [marker.position.lat(), marker.position.lng()]
     };
     newMarker = JSON.stringify(newMarker);
-    console.log(newMarker);  
+    console.log(newMarker);
     var contentString =
       '<div id="content" class="card" style="width: 18rem;">' +
       '<img src="images/lupa.png" class="card-img-top" alt="..." style="width: 20px;"> ' +

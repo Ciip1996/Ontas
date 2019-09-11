@@ -18,18 +18,23 @@ var calculateAndDisplayRoute = (
   origin,
   destination
 ) => {
+  directionsRenderer = JSON.parse(directionsRenderer);
+  directionsService = JSON.parse(directionsService);
+  markerArray = JSON.parse(markerArray);
+  stepDisplay = JSON.parse(stepDisplay);
+  map = JSON.parse(map);
   // First, remove any existing markers from the map.
   for (var i = 0; i < markerArray.length; i++) {
     markerArray[i].setMap(null);
   }
 
   // Retrieve the start and end locations and create a DirectionsRequest using
-  // WALKING directions.
+  const type_travel = document.getElementById("dropdown_types").value;
   directionsService.route(
     {
       origin: origin,
       destination: destination,
-      travelMode: google.maps.TravelMode["WALKING"]
+      travelMode: google.maps.TravelMode[type_travel]
     },
     function(response, status) {
       // Route the directions and pass the response to a function to create
