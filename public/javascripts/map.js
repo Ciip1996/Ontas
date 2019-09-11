@@ -13,6 +13,9 @@ var stepDisplay;
 
 var customMarker = null;
 
+var currentPosition;
+var currentDestiny;
+
 socket.on("disconnect", () => {
   console.log("you have been disconnected");
 });
@@ -57,19 +60,8 @@ function initMap() {
   var menuRoutes = document.getElementById("menu_routes");
   map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(menuRoutes);
 
-  // calculateAndDisplayRoute(
-  //   directionsRenderer,
-  //   directionsService,
-  //   markerArray,
-  //   stepDisplay,
-  //   map,
-  //   origin,
-  //   destination
-  // );
-
-  // //DISPLAY DIRECTIONS
-  // directionsDisplay.setMap(map);
-  // directionsDisplay.setPanel(document.getElementById("directionsPanel"));
+  //DISPLAY DIRECTIONS
+  directionsRenderer.setMap(map);
 
   //Evento de agregar marcador por el usuario logeado
   google.maps.event.addListener(map, "click", function(event) {
@@ -157,7 +149,10 @@ function consultaMatricula(matricula, dialog) {
 
         customMarker.addListener("dragend", function(event) {
           clearMarkers();
-          //console.log(event);
+          currentPosition = {
+            lat: event.latLng.lat(),
+            lng: event.latLng.lng()
+          };
           getPoints(event.latLng.lng(), event.latLng.lat(), 800, "all");
         });
 
@@ -295,12 +290,6 @@ function createMarker(item, icon) {
 }
 
 const showMarker = (marker, icon) => {
-  directionsRenderer = JSON.stringify(directionsRenderer);
-  directionsService = JSON.stringify(directionsService);
-  markerArray = JSON.stringify(markerArray);
-  stepDisplay = JSON.stringify(stepDisplay);
-  map = JSON.stringify(map);
-
   if (icon != null) {
     var contentString =
       '<div id="content" style="width: 18rem;">' +
@@ -317,23 +306,11 @@ const showMarker = (marker, icon) => {
       '<p id="firstHeading"  class="card-text"> Lon:' +
       marker.position.lng() +
       "</p>" +
-      '<button type="button" class="btn btn-primary" onclick="calculateAndDisplayRoute(' +
-      directionsRenderer +
-      "," +
-      directionsService +
-      "," +
-      markerArray +
-      "," +
-      stepDisplay +
-      "," +
-      map +
-      "," +
-      origin +
-      "," +
-      destination +
-      ')">Ver ruta</button>' +
+      '<button type="button" class="btn btn-primary" onclick="showRoute()">Ver ruta</button>' +
       "</div>" +
       "</div>";
+
+    currentDestiny = { lat: marker.position.lat(), lng: marker.position.lng() };
   } else {
     let newMarker = {
       title: marker.title,
@@ -367,4 +344,16 @@ const showMarker = (marker, icon) => {
     infowindow.setContent(contentString);
     infowindow.open(map, this);
   });
+};
+
+const showRoute = () => {
+  calculateAndDisplayRoute(
+    directionsRenderer,
+    directionsService,
+    markerArray,
+    stepDisplay,
+    map,
+    currentPosition,
+    currentDestiny
+  );
 };

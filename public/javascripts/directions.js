@@ -18,11 +18,6 @@ var calculateAndDisplayRoute = (
   origin,
   destination
 ) => {
-  directionsRenderer = JSON.parse(directionsRenderer);
-  directionsService = JSON.parse(directionsService);
-  markerArray = JSON.parse(markerArray);
-  stepDisplay = JSON.parse(stepDisplay);
-  map = JSON.parse(map);
   // First, remove any existing markers from the map.
   for (var i = 0; i < markerArray.length; i++) {
     markerArray[i].setMap(null);
@@ -40,6 +35,7 @@ var calculateAndDisplayRoute = (
       // Route the directions and pass the response to a function to create
       // markers for each step.
       if (status === "OK") {
+        console.log(response);
         document.getElementById("warnings-panel").innerHTML =
           "<b>" + response.routes[0].warnings + "</b>";
         directionsRenderer.setDirections(response);
