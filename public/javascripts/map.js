@@ -2,6 +2,8 @@ var map;
 var infowindow;
 var laSalleBajio = { lat: 21.150908, lng: -101.71110470000002 };
 var currentMarkers = [];
+var studentMarkers = [];
+
 var customMarker = null;
 
 socket.on("disconnect", () => {
@@ -54,11 +56,12 @@ function initMap() {
           action: function(dialog) {
             var title = document.getElementById("txtTitulo").value;
             var description = document.getElementById("txtDescripcion").value;
-
             var item = {
               name: title,
               description: description,
-              location: event.latLng
+              position: {
+                lat: event.latLng.lat(), lng: event.latLng.lng() 
+              }
             };
             createMarker(item, null);
             //socket.emit("",usuario, marker);// send the data to mongo db
@@ -82,8 +85,8 @@ function consultaMatricula(matricula, dialog) {
     url: "/getDatosAlumno",
     data: { matricula: matricula },
     success: function(data) {
-      if (data.length > 0) {
-        console.log("Hola undo");
+      if (data.length > 0) 
+      {
         // only enter if there are users with that id
         dialog.close();
         console.log(data);
@@ -104,7 +107,7 @@ function consultaMatricula(matricula, dialog) {
         customMarker = new google.maps.Marker({
           map: map,
           draggable: true,
-          animation: google.maps.Animation.DROP,
+          animation: google.maps.Animation.BOUNCE,
           position: laSalleBajio,
           icon: "/images/Estudiantes/" + data[0].photos[0]
         });
@@ -125,20 +128,17 @@ function consultaMatricula(matricula, dialog) {
 
         //MOSTRAR MARCADORES DEL USUARIO
         data[0].markers.forEach(item => {
-          var infoMarker = {
-            name: item.title,
-            description: "description",
-            location: item.coordinates
-          };
-
+          var myLatLng = {lat: item.position.lat, lng: item.position.lng};        
           var marker = new google.maps.Marker({
+            position: myLatLng,
             map: map,
-            position: infoMarker.location,
-            title: infoMarker.name,
-            icon: null
+            title: item.title,
+            icon: null,
+            description: item.description,
+            animation: google.maps.Animation.DROP
           });
           currentMarkers.push(marker);
-          showMarker(infoMarker, marker, null);
+          showMarker(marker, null);
         });
       }
       else{
@@ -146,7 +146,6 @@ function consultaMatricula(matricula, dialog) {
         document.getElementById("txtMatricula").value = "";
       }
     },error: function(xhr, status, error) {
-      debugger;
       var errorMessage = xhr.status + ": " + xhr.statusText;
       toastr.error("The following error was found: " + errorMessage);
     },
@@ -155,15 +154,16 @@ function consultaMatricula(matricula, dialog) {
 }
 
 function clearMarkers() {
-  currentMarkers.forEach(m => m.setMap(null));
-  currentMarkers = [];
+  studentMarkers.forEach(m =>{
+    m.setMap(null);
+  });
+  studentMarkers = [];
 }
 
 function getPoints(long, lat, distance, type) {
   if (long == 0) long = laSalleBajio.lng;
   if (lat == 0) lat = laSalleBajio.lat;
   if (distance == 0) distance = 1000000000;
-
   $.ajax({
     type: "POST",
     url: "/getpoints",
@@ -192,14 +192,18 @@ function saveMarkersInDB() {
     type: "POST",
     url: "/insertMarkers",
     data: {
-      matricula: "60122",
+      matricula: sessionStorage.getItem("matricula"),
       markers: JSON.stringify(
         currentMarkers.map(item => {
+          var pos =  item.getPosition();
+          var latit = pos.lat();
+          var longit = pos.lng();
           return {
             title: item.title,
-            coordinates: {
-              lat: item.position.lat(),
-              lng: item.position.lng()
+            description: item.description,
+            position: {
+              lat: latit,
+              lng: longit
             }
           };
         })
@@ -213,64 +217,83 @@ function saveMarkersInDB() {
 }
 
 function createMarker(item, icon) {
-  var image = {
-    url: icon,
-    scaledSize: new google.maps.Size(80, 80), // scaled size
-    origin: new google.maps.Point(0, 0), // origin
-    anchor: new google.maps.Point(0, 0) // anchor
-  };
-
-  var marker = new google.maps.Marker({
-    map: map,
-    position: item.location,
-    title: item.name,
-    icon: image
-  });
-
-  currentMarkers.push(marker);
-
-  saveMarkersInDB();
-  showMarker(item, marker, icon);
+  try {
+    if(item.location.coordinates){//changing how the document is since there was a problem matching both user and markers info
+      var myLatLng = {lat: item.location.lat, lng: item.location.lng};
+      var marker = new google.maps.Marker({
+        map: map,
+        position: myLatLng,
+        title: item.name,
+        description: item.description,
+        animation: google.maps.Animation.DROP,
+        icon: null,
+        type: null
+      });
+  
+      var image = {
+        url: icon,
+        scaledSize: new google.maps.Size(80, 80), // scaled size
+        origin: new google.maps.Point(0, 0), // origin
+        anchor: new google.maps.Point(0, 0) // anchor
+      };
+      marker.icon = image;
+      marker.type = "student";
+      studentMarkers.push(marker);
+  
+    }
+  } catch (error) { 
+    var myLatLng = {lat: item.position.lat, lng: item.position.lng};
+    var marker = new google.maps.Marker({
+      map: map,
+      position: myLatLng,
+      title: item.name,
+      description: item.description,
+      animation: google.maps.Animation.DROP,
+      icon: null,
+      type: null
+    });
+    currentMarkers.push(marker);
+    saveMarkersInDB();
+   }
+  showMarker(marker, icon);
 }
 
-const showMarker = (content, marker, icon) => {
-  let newMarker = {
-    title: marker.title,
-    coordinates: {
-      lat: marker.position.lat(),
-      lng: marker.position.lng()
-    }
-  };
-  newMarker = JSON.stringify(newMarker);
-  console.log(newMarker);
+const showMarker = (marker, icon) => {
   if (icon != null) {
     var contentString =
       '<div id="content" style="width: 18rem;">' +
       '<img src="' +
-      content.photos[0] +
+      marker.icon.url +
       '" class="card-img-top" alt="..." style="width: 30px;"> ' +
       '<div class="card-body">' +
       '<h5 id="firstHeading"  class="card-title">' +
-      content.name +
+      marker.title +
       "</h5>" +
       '<p id="firstHeading"  class="card-text"> Lat:' +
-      content.location.coordinates[1] +
+      marker.position.lat() +
       "</p>" +
       '<p id="firstHeading"  class="card-text"> Lon:' +
-      content.location.coordinates[0] +
+      marker.position.lng() +
       "</p>" +
       "</div>" +
       "</div>";
   } else {
+    let newMarker = {
+      title: marker.title,
+      description: marker.description,
+      position: [marker.position.lat(), marker.position.lng()]
+    };
+    newMarker = JSON.stringify(newMarker);
+    console.log(newMarker);  
     var contentString =
       '<div id="content" class="card" style="width: 18rem;">' +
       '<img src="images/lupa.png" class="card-img-top" alt="..." style="width: 20px;"> ' +
       '<div class="card-body">' +
       '<h5 id="title"  class="card-title">' +
-      content.name +
+      marker.title +
       "</h5>" +
       '<p id="firstHeading" class="card-text">' +
-      content.description +
+      marker.description +
       "</p>" +
       "<button type='button' class='btn btn-primary' onclick='enviarMarker(" +
       newMarker +
