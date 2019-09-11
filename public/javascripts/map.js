@@ -281,7 +281,9 @@ const showMarker = (marker, icon) => {
     let newMarker = {
       title: marker.title,
       description: marker.description,
-      position: [marker.position.lat(), marker.position.lng()]
+      position:{
+        lat: marker.position.lat(), lng: marker.position.lng()
+      } 
     };
     newMarker = JSON.stringify(newMarker);
     console.log(newMarker);  
