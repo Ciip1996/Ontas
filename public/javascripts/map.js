@@ -6,6 +6,18 @@ var studentMarkers = [];
 
 var customMarker = null;
 
+var markerArray = [];
+var directionsService = new google.maps.DirectionsService();
+
+//DEFAULT
+var origin = new google.maps.LatLng(21.167987, -101.6840177);
+var destination = new google.maps.LatLng(21.15233, -101.7140047);
+
+// Create a renderer for directions and bind it to the map.
+var directionsRenderer = new google.maps.DirectionsRenderer({ map: map });
+// Instantiate an info window to hold step text.
+var stepDisplay = new google.maps.InfoWindow();
+
 socket.on("disconnect", () => {
   console.log("you have been disconnected");
 });
@@ -39,6 +51,23 @@ function initMap() {
     center: laSalleBajio,
     zoom: 15
   });
+
+  var menuRoutes = document.getElementById("menu_routes");
+  map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(menuRoutes);
+
+  calculateAndDisplayRoute(
+    directionsRenderer,
+    directionsService,
+    markerArray,
+    stepDisplay,
+    map,
+    origin,
+    destination
+  );
+
+  // //DISPLAY DIRECTIONS
+  // directionsDisplay.setMap(map);
+  // directionsDisplay.setPanel(document.getElementById("directionsPanel"));
 
   //Evento de agregar marcador por el usuario logeado
   google.maps.event.addListener(map, "click", function(event) {
@@ -85,8 +114,8 @@ function consultaMatricula(matricula, dialog) {
     url: "/getDatosAlumno",
     data: { matricula: matricula },
     success: function(data) {
-      if (data.length > 0) 
-      {
+      if (data.length > 0) {
+        console.log("Hola mundo");
         // only enter if there are users with that id
         dialog.close();
         console.log(data);
@@ -102,7 +131,10 @@ function consultaMatricula(matricula, dialog) {
           }
         }
 
-        socket.emit("agrega usuario",new Usuario(data[0].photos[0], data[0].name, matricula));
+        socket.emit(
+          "agrega usuario",
+          new Usuario(data[0].photos[0], data[0].name, matricula)
+        );
 
         customMarker = new google.maps.Marker({
           map: map,
@@ -140,12 +172,13 @@ function consultaMatricula(matricula, dialog) {
           currentMarkers.push(marker);
           showMarker(marker, null);
         });
-      }
-      else{
+      } else {
         toastr.error("No user was found please try again.");
         document.getElementById("txtMatricula").value = "";
       }
-    },error: function(xhr, status, error) {
+    },
+    error: function(xhr, status, error) {
+      debugger;
       var errorMessage = xhr.status + ": " + xhr.statusText;
       toastr.error("The following error was found: " + errorMessage);
     },
