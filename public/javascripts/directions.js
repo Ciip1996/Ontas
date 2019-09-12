@@ -24,17 +24,18 @@ var calculateAndDisplayRoute = (
   }
 
   // Retrieve the start and end locations and create a DirectionsRequest using
-  // WALKING directions.
+  const type_travel = document.getElementById("dropdown_types").value;
   directionsService.route(
     {
       origin: origin,
       destination: destination,
-      travelMode: google.maps.TravelMode["WALKING"]
+      travelMode: google.maps.TravelMode[type_travel]
     },
     function(response, status) {
       // Route the directions and pass the response to a function to create
       // markers for each step.
       if (status === "OK") {
+        console.log(response);
         document.getElementById("warnings-panel").innerHTML =
           "<b>" + response.routes[0].warnings + "</b>";
         directionsRenderer.setDirections(response);
