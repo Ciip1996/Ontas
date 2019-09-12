@@ -58,7 +58,9 @@ function initMap() {
   });
 
   var menuRoutes = document.getElementById("menu_routes");
-  map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(menuRoutes);
+  var cardDirections = document.getElementById("card_directions");
+  map.controls[google.maps.ControlPosition.LEFT_CENTER].push(menuRoutes);
+  map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(cardDirections);
 
   //DISPLAY DIRECTIONS
   directionsRenderer.setMap(map);
@@ -158,7 +160,7 @@ function consultaMatricula(matricula, dialog) {
 
         //MOSTRAR MARCADORES DEL USUARIO
         data[0].markers.forEach(item => {
-          var myLatLng = { lat: item.position.lat, lng: item.position.lng };
+          var myLatLng = { lat: item.position.lat(), lng: item.position.lng() };
           var marker = new google.maps.Marker({
             position: myLatLng,
             map: map,
@@ -356,4 +358,9 @@ const showRoute = () => {
     currentPosition,
     currentDestiny
   );
+};
+
+var followMarker = marker => {
+  map.setCenter(marker);
+  map.setZoom(20);
 };

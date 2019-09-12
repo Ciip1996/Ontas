@@ -132,6 +132,17 @@
         </select>
         <button type="button" class="btn btn-primary">Calcular ruta</button>
     </div>
+
+    {{!-- Directions card --}}
+    <div class="container-fluid" id="card_directions" style="display: none;">
+        <div class="card text-right" style="width: 18rem;">
+            <div class="card-body">
+                <h5 class="card-title" id="label_destiny">Destino</h5>
+                <p class="card-text" id="label_steps">Pasos</p>
+                <a href="#" class="btn btn-primary" onclick="nextStep()">Siguiente</a>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
