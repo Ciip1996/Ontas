@@ -59,8 +59,6 @@ socket.on("usuarios", data => {
 });
 
 const enviarMarker = marcador => {
-  // $("#contenidoModal").append(modal);
-  // $("#myModal").modal();
   marker = marcador;
 
   BootstrapDialog.show({

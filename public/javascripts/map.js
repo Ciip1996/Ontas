@@ -21,25 +21,33 @@ socket.on("disconnect", () => {
 });
 
 function showDialog() {
-  BootstrapDialog.show({
-    id: "loginModal",
-    size: BootstrapDialog.SIZE_SMALL,
-    title: "Inicio de Sesión",
-    message: $(
-      '<input id="txtMatricula" type="number" class="form-control" placeholder="Digite su matrícula para iniciar sesión"></input>'
-    ),
-    buttons: [
-      {
-        label: "Consultar",
-        cssClass: "btn-primary",
-        hotkey: 13, // Enter.
-        action: function(dialog) {
-          var matricula = document.getElementById("txtMatricula").value;
-          consultaMatricula(matricula, dialog);
+  var matricula = sessionStorage.getItem("matricula");
+  if(!matricula){
+    BootstrapDialog.show({
+      id: "loginModal",
+      size: BootstrapDialog.SIZE_SMALL,
+      title: "Inicio de Sesión",
+      message: $(
+        '<input id="txtMatricula" type="number" class="form-control" placeholder="Digite su matrícula para iniciar sesión"></input>'
+      ),
+      buttons: [
+        {
+          label: "Consultar",
+          cssClass: "btn-primary",
+          hotkey: 13, // Enter.
+          action: function(dialog) {
+            var matricula = document.getElementById("txtMatricula").value;
+            consultaMatricula(matricula, dialog);
+          }
         }
-      }
-    ]
-  });
+      ]
+    });
+  }
+  else{
+    sessionStorage.removeItem("matricula");
+    document.getElementById("lblLogin").innerText = " login";
+    initMap();
+  }
 }
 
 function initMap() {
@@ -110,7 +118,7 @@ function consultaMatricula(matricula, dialog) {
     data: { matricula: matricula },
     success: function(data) {
       if (data.length > 0) {
-        console.log("Hola mundo");
+        document.getElementById("lblLogin").innerText = "logout";
         // only enter if there are users with that id
         dialog.close();
         console.log(data);

@@ -1,16 +1,16 @@
 html,
 body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 #map {
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    overflow: overlay;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  overflow: overlay;
 }
 
 .borderChat {
@@ -23,11 +23,11 @@ body {
 }
 
 .boxShadowChat {
-  -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
-  -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
+  -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
 }
-.chat-profile-image{
+.chat-profile-image {
   width: 25px;
   height: 25px;
   -webkit-border-radius: 25px;
@@ -40,4 +40,24 @@ body {
   float: left;
   background-size: cover;
   background-position: center center;
+}
+
+#floating-panel {
+  position: absolute;
+  top: 10px;
+  left: 25%;
+  z-index: 5;
+  background-color: #fff;
+  padding: 5px;
+  border: 1px solid #999;
+  text-align: center;
+  font-family: "Roboto", "sans-serif";
+  line-height: 30px;
+  padding-left: 10px;
+}
+
+#warnings-panel {
+  width: 100%;
+  height: 10%;
+  text-align: center;
 }
