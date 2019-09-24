@@ -1,13 +1,7 @@
-// // Listen to change events from the start and end lists.
-// var onChangeHandler = function() {
-//   calculateAndDisplayRoute(
-//     directionsRenderer,
-//     directionsService,
-//     markerArray,
-//     stepDisplay,
-//     map
-//   );
-// };
+var labelSteps = document.getElementById("label_steps");
+
+var routeText;
+let instructionNumber = 0;
 
 var calculateAndDisplayRoute = (
   directionsRenderer,
@@ -35,11 +29,11 @@ var calculateAndDisplayRoute = (
       // Route the directions and pass the response to a function to create
       // markers for each step.
       if (status === "OK") {
-        console.log(response);
         document.getElementById("warnings-panel").innerHTML =
           "<b>" + response.routes[0].warnings + "</b>";
         directionsRenderer.setDirections(response);
         showSteps(response, markerArray, stepDisplay, map);
+        // routeText = response.routes[0].legs[0];
       } else {
         window.alert("Directions request failed due to " + status);
       }
@@ -63,6 +57,7 @@ var showSteps = (directionResult, markerArray, stepDisplay, map) => {
       map
     );
   }
+  routeText = myRoute;
 };
 
 var attachInstructionText = (stepDisplay, marker, text, map) => {
@@ -72,4 +67,24 @@ var attachInstructionText = (stepDisplay, marker, text, map) => {
     stepDisplay.setContent(text);
     stepDisplay.open(map, marker);
   });
+
+  routeText = text;
+  document.getElementById("card_directions").style.display = "block";
+};
+
+var nextStep = () => {
+  if (instructionNumber + 1 < routeText.steps.length) {
+    console.log(routeText.steps[instructionNumber].instructions);
+    console.log(routeText);
+    console.log(instructionNumber);
+    instructionNumber++;
+    document.getElementById("label_steps").innerHTML =
+      routeText.steps[instructionNumber].instructions;
+
+    followMarker(routeText.steps[instructionNumber].start_location);
+  } else {
+    instructionNumber = 0;
+    document.getElementById("label_steps").innerText =
+      "¡Haz llegado a tu destino!";
+  }
 };

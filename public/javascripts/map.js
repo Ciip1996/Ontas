@@ -21,25 +21,33 @@ socket.on("disconnect", () => {
 });
 
 function showDialog() {
-  BootstrapDialog.show({
-    id: "loginModal",
-    size: BootstrapDialog.SIZE_SMALL,
-    title: "Inicio de Sesión",
-    message: $(
-      '<input id="txtMatricula" type="number" class="form-control" placeholder="Digite su matrícula para iniciar sesión"></input>'
-    ),
-    buttons: [
-      {
-        label: "Consultar",
-        cssClass: "btn-primary",
-        hotkey: 13, // Enter.
-        action: function(dialog) {
-          var matricula = document.getElementById("txtMatricula").value;
-          consultaMatricula(matricula, dialog);
+  var matricula = sessionStorage.getItem("matricula");
+  if(!matricula){
+    BootstrapDialog.show({
+      id: "loginModal",
+      size: BootstrapDialog.SIZE_SMALL,
+      title: "Inicio de Sesión",
+      message: $(
+        '<input id="txtMatricula" type="number" class="form-control" placeholder="Digite su matrícula para iniciar sesión"></input>'
+      ),
+      buttons: [
+        {
+          label: "Consultar",
+          cssClass: "btn-primary",
+          hotkey: 13, // Enter.
+          action: function(dialog) {
+            var matricula = document.getElementById("txtMatricula").value;
+            consultaMatricula(matricula, dialog);
+          }
         }
-      }
-    ]
-  });
+      ]
+    });
+  }
+  else{
+    sessionStorage.removeItem("matricula");
+    document.getElementById("lblLogin").innerText = " login";
+    initMap();
+  }
 }
 
 function initMap() {
@@ -58,7 +66,9 @@ function initMap() {
   });
 
   var menuRoutes = document.getElementById("menu_routes");
-  map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(menuRoutes);
+  var cardDirections = document.getElementById("card_directions");
+  map.controls[google.maps.ControlPosition.LEFT_CENTER].push(menuRoutes);
+  map.controls[google.maps.ControlPosition.RIGHT_CENTER].push(cardDirections);
 
   //DISPLAY DIRECTIONS
   directionsRenderer.setMap(map);
@@ -110,7 +120,7 @@ function consultaMatricula(matricula, dialog) {
     data: { matricula: matricula },
     success: function(data) {
       if (data.length > 0) {
-        console.log("Hola mundo");
+        document.getElementById("lblLogin").innerText = "logout";
         // only enter if there are users with that id
         dialog.close();
         console.log(data);
@@ -158,7 +168,7 @@ function consultaMatricula(matricula, dialog) {
 
         //MOSTRAR MARCADORES DEL USUARIO
         data[0].markers.forEach(item => {
-          var myLatLng = { lat: item.position.lat, lng: item.position.lng };
+          var myLatLng = { lat: item.position.lat(), lng: item.position.lng() };
           var marker = new google.maps.Marker({
             position: myLatLng,
             map: map,
@@ -315,7 +325,9 @@ const showMarker = (marker, icon) => {
     let newMarker = {
       title: marker.title,
       description: marker.description,
-      position: [marker.position.lat(), marker.position.lng()]
+      position:{
+        lat: marker.position.lat(), lng: marker.position.lng()
+      } 
     };
     newMarker = JSON.stringify(newMarker);
     console.log(newMarker);
@@ -356,4 +368,9 @@ const showRoute = () => {
     currentPosition,
     currentDestiny
   );
+};
+
+var followMarker = marker => {
+  map.setCenter(marker);
+  map.setZoom(20);
 };
